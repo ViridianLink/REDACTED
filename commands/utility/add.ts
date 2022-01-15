@@ -1,4 +1,4 @@
-import Discord from "discord.js"
+import Discord from "discord.js";
 
 // Template Command
 module.exports = {
@@ -19,5 +19,4 @@ module.exports = {
         message.reply(`Answer: ${sum}`)
     },
     permissions: ["MANAGE_MESSAGES"],
-    requiredRoles: ["Staff"],
 }
