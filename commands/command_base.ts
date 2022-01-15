@@ -1,6 +1,6 @@
 import Discord from "discord.js"
-import { Command } from "./command"
 import { servers } from "../server"
+import { Command } from "./command"
 
 let recentlyRan: string[] = []
 
@@ -29,7 +29,7 @@ module.exports = (client: Discord.Client, commandOptions: Command) => {
         requiredRoles = [requiredRoles]
     }
 
-    client.on("messageCreate", message => {
+    client.on("messageCreate", (message) => {
         const { member, content, guild, channel } = message
 
         if (member == null || guild == null) { return }
@@ -71,7 +71,7 @@ module.exports = (client: Discord.Client, commandOptions: Command) => {
                 // Check if the command is on cooldown
                 try { var cooldownString = `${guild.id}-${member.id}-${commands[0]}` }
                 catch { var cooldownString = `privateMessage-${message.author.id}-${commands[0]}` }
-                if (cooldown > 0 && recentlyRan.includes(cooldownString) && !member.roles.cache.has(server.roles.moderationRole)) {
+                if (cooldown > 0 && recentlyRan.includes(cooldownString) && !member.roles.cache.hasAny(...server.roles.moderationRoles)) {
                     message.reply("You cannot use that command so soon, please wait")
                     return
                 }
