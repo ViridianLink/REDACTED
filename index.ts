@@ -109,7 +109,8 @@ client.on("ready", () => {
     // update_guidelines(client, "879894434538459157")
 
     const customRoles = require("./self_updating/customRoles")
-    customRoles.gameRoles(client, "931986133762588752")
+    customRoles.gameRoles(client, "931986133762588752", "931988680057454592")
+    customRoles.colourRoles(client, "932004859899691018", "932004884839039047")
 
     // const updateInfomation = require("./self_updating/updateInfomation")
     // updateInfomation(client, "830927865784565800")
