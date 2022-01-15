@@ -166,7 +166,7 @@ client.on("messageReactionAdd", async (reaction, user) => {
     const server = servers[guild.id];
 
     for (const reactionRole of server.reactionRoles) {
-        if (reaction.message.id == reactionRole.messageId && reaction.emoji.toString() == reactionRole.emoji && user.id !== "907635513341644861") {
+        if (reaction.message.id == reactionRole.messageId && reaction.emoji.toString() == reactionRole.emoji && user.id !== process.env.TOKEN) {
             const member = guild.members.cache.find(member => member.id == user.id)
             if (!member) { break; }
 
@@ -188,7 +188,7 @@ client.on("messageReactionRemove", async (reaction, user) => {
     const server = servers[guild.id];
 
     for (const reactionRole of server.reactionRoles) {
-        if (reaction.message.id == reactionRole.messageId && reaction.emoji.toString() == reactionRole.emoji && user.id !== "907635513341644861") {
+        if (reaction.message.id == reactionRole.messageId && reaction.emoji.toString() == reactionRole.emoji && user.id !== process.env.TOKEN) {
             const member = guild.members.cache.find(member => member.id == user.id)
             if (!member) { break; }
 
