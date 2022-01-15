@@ -1,5 +1,5 @@
-import Discord from "discord.js"
-import fs from "fs"
+import Discord from "discord.js";
+import fs from "fs";
 import { Server } from "./server";
 
 module.exports = {
@@ -32,8 +32,8 @@ module.exports = {
         }
 
     },
-    
-    update_configs: function (message: Discord.Message, member_config=null, author_config=null, server_config=null) {
+
+    update_configs: function (message: Discord.Message, member_config = null, author_config = null, server_config = null) {
         let member = message.mentions.members?.first();
         if (!member) { member = message.member as Discord.GuildMember }
         const author = message.member;
@@ -71,4 +71,16 @@ module.exports = {
     updateConfigSync: function (guild: Discord.Guild, server: Server) {
         fs.writeFileSync(`./server_configs/${guild.id}.json`, JSON.stringify(server, null, 4));
     },
+
+    getRoleResolveables: async function (guild: Discord.Guild, roleIds: string[]): Promise<Discord.RoleResolvable[]> {
+        let roles: Discord.RoleResolvable[] = []
+
+        for (let roleId of roleIds) {
+            const role = await guild.roles.fetch(roleId)
+            if (!role) continue;
+
+            roles.push(role)
+        }
+        return roles
+    }
 }
