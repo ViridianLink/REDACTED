@@ -13,7 +13,8 @@ export const client = new Discord.Client({
         Discord.Intents.FLAGS.GUILDS,
         Discord.Intents.FLAGS.GUILD_MEMBERS,
         Discord.Intents.FLAGS.GUILD_MESSAGES,
-        Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS
+        Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+        Discord.Intents.FLAGS.GUILD_VOICE_STATES
     ],
     partials: ['MESSAGE', 'CHANNEL', 'REACTION']
 })
@@ -193,6 +194,40 @@ client.on("messageReactionRemove", async (reaction, user) => {
             break;
         }
     }
+})
+
+
+client.on("voiceStateUpdate", (oldState, newState) => {
+    const guild = newState.guild;
+
+    // Old State
+    const oldChannel = oldState.channel;
+
+    if (!oldChannel || oldChannel.members.size != 0 || oldChannel.name == "Room #1") return;
+
+    guild.channels.fetch("923679215205892098")
+        .then(channel => {
+            if (!channel || channel.type != "GUILD_CATEGORY") return;
+            for (const child of channel.children.values()) {
+                if (child.members.size != 0 || child.name == "Room #1") continue;
+                child.delete()
+            }
+        })
+
+    // New State
+    const newChannel = newState.channel
+    if (!newChannel) return;
+    if (!newChannel.name.startsWith("Room #")) return;
+
+    guild.channels.fetch("923679215205892098")
+        .then(channel => {
+            if (!channel || channel.type != "GUILD_CATEGORY") return;
+            const lastChannel = channel.children.last()
+            if (!lastChannel) return;
+
+            const lastChannelId = lastChannel.name.split("#")[1]
+            channel.createChannel(`Room #${Number(lastChannelId) + 1}`, { type: "GUILD_VOICE", userLimit: 99 })
+        })
 })
 
 
