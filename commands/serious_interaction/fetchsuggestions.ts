@@ -4,6 +4,7 @@ module.exports = {
     commands: ["fetchSuggestions", "fetchsuggestions"],
     permissionError: "",
     callback: async (message: Discord.Message, args: string[], text: string) => {
+        const client = message.client
         const guild = message.guild;
         if (!guild) { return; }
 
@@ -17,7 +18,7 @@ module.exports = {
         suggestionChannel.messages.fetch({ limit: 100 })
             .then(messages => {
                 const botMessages = messages // Filtering and sorting
-                    .filter(message => message.author.id === process.env.TOKEN && message.embeds.length > 0)
+                    .filter(message => message.author.id === client.user?.id && message.embeds.length > 0)
                     .sort((a, b) => {
                         const a_thumbsUp = a.reactions.resolve('👍')
                         const b_thumbsUp = b.reactions.resolve('👍')

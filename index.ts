@@ -148,14 +148,7 @@ client.on("guildMemberAdd", (member) => {
 
 
 client.on("messageCreate", message => {
-    // const yesMaster = require("./special_commands/yesMaster")
-    // yesMaster(message)
-
-    // const questionMe = require("./special_commands/questionMe")
-    // questionMe(message)
-
-    // const autoSupport = require("./special_commands/autoSupport")
-    // autoSupport(message)
+    require("./special_commands/questionMe")(message)
 })
 
 
@@ -166,7 +159,7 @@ client.on("messageReactionAdd", async (reaction, user) => {
     const server = servers[guild.id];
 
     for (const reactionRole of server.reactionRoles) {
-        if (reaction.message.id == reactionRole.messageId && reaction.emoji.toString() == reactionRole.emoji && user.id !== process.env.TOKEN) {
+        if (reaction.message.id == reactionRole.messageId && reaction.emoji.toString() == reactionRole.emoji && user.id !== client.user?.id) {
             const member = guild.members.cache.find(member => member.id == user.id)
             if (!member) { break; }
 
@@ -188,7 +181,7 @@ client.on("messageReactionRemove", async (reaction, user) => {
     const server = servers[guild.id];
 
     for (const reactionRole of server.reactionRoles) {
-        if (reaction.message.id == reactionRole.messageId && reaction.emoji.toString() == reactionRole.emoji && user.id !== process.env.TOKEN) {
+        if (reaction.message.id == reactionRole.messageId && reaction.emoji.toString() == reactionRole.emoji && user.id !== client.user?.id) {
             const member = guild.members.cache.find(member => member.id == user.id)
             if (!member) { break; }
 
