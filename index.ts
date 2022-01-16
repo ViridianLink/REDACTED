@@ -200,11 +200,7 @@ client.on("messageReactionRemove", async (reaction, user) => {
 client.on("voiceStateUpdate", (oldState, newState) => {
     const guild = newState.guild;
 
-    // Old State
-    const oldChannel = oldState.channel;
-
-    if (!oldChannel || oldChannel.members.size != 0 || oldChannel.name == "Room #1") return;
-
+    // Delete empty voice channels
     guild.channels.fetch("923679215205892098")
         .then(channel => {
             if (!channel || channel.type != "GUILD_CATEGORY") return;
@@ -214,7 +210,8 @@ client.on("voiceStateUpdate", (oldState, newState) => {
             }
         })
 
-    // New State
+
+    // Create new voice channel
     const newChannel = newState.channel
     if (!newChannel) return;
     if (!newChannel.name.startsWith("Room #")) return;
