@@ -200,6 +200,11 @@ client.on("messageReactionRemove", async (reaction, user) => {
 client.on("voiceStateUpdate", (oldState, newState) => {
     const guild = newState.guild;
 
+    // Voice chat not empty
+    if ((oldState.channel && oldState.channel.members.size == 0) || (newState.channel && newState.channel.members.size == 0)) {
+        return;
+    }
+
     // Delete empty voice channels
     guild.channels.fetch("923679215205892098")
         .then(channel => {
