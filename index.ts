@@ -2,6 +2,8 @@ import Discord from "discord.js";
 import dotenv from "dotenv";
 import fs from "fs";
 import path from "path";
+import { ICommand } from "./commands/command";
+import { commands } from "./commands/load_commands";
 import { Server, servers } from "./server";
 
 
@@ -19,7 +21,6 @@ export const client = new Discord.Client({
     partials: ['MESSAGE', 'CHANNEL', 'REACTION']
 })
 
-
 // Initialize database
 require("./sql").init()
 
@@ -28,13 +29,11 @@ require("./sql").init()
 client.on("ready", () => {
     const botConfig = require("./configs/bot_config.json");
     console.log(`REDACTED is Running, version: ${botConfig.version}`);
+    require("./commands/deploy_commands").deployCommands(client)
 
     if (client.user) {
-        client.user.setPresence({ activities: [{ name: "with Sond" }], status: "online" })
+        client.user.setPresence({ activities: [{ name: "Destiny 2" }], status: "online" })
     }
-
-    const loadCommands = require("./commands/load_commands");
-    loadCommands(client)
 
     // Load server configs
     const serverConfigFiles = fs.readdirSync(path.join(__dirname, "server_configs"))
@@ -54,7 +53,7 @@ client.on("ready", () => {
         servers[guildId] = server
     }
 
-    client.guilds.cache.each(guild => {
+    for (const guild of client.guilds.cache.values()) {
         if (!(guild.id in servers)) {
             const server = new Server(guild.id)
             servers[guild.id] = server
@@ -79,23 +78,23 @@ client.on("ready", () => {
                 .then(role => { if (role) { reactionRole.roleId = role.id; } })
         }
 
-        let defaultRoles: Discord.RoleResolvable[] = []
-        server.roles.default.forEach(roleId => {
-            guild.roles.fetch(roleId).then((role) => {
-                if (!role) return;
-                defaultRoles.push(role)
+        if (server.roles.default) {
+            let defaultRoles: Discord.RoleResolvable[] = []
+            server.roles.default.forEach(roleId => {
+                guild.roles.fetch(roleId).then((role) => {
+                    if (!role) return;
+                    defaultRoles.push(role)
+                })
             })
-        })
 
-
-        // Add default roles to every member
-        guild.members.fetch().then((members) => {
-            for (let member of members.values()) {
-                member.roles.add(defaultRoles)
-            }
-        })
-    })
-
+            // Add default roles to every member
+            guild.members.fetch().then((members) => {
+                for (let member of members.values()) {
+                    member.roles.add(defaultRoles)
+                }
+            })
+        }
+    }
 
     // init.updateImages();
 
@@ -131,24 +130,36 @@ client.on("guildCreate", async guild => {
 
 
 client.on("guildDelete", async guild => {
-    fs.unlink(`./server_configs/${guild.id}.json`, (error) => {
+    fs.rename(`./server_configs/${guild.id}.json`, `./server_configs/OLD_${guild.id}.json`, (error) => {
         if (error) { console.log(error) }
     })
 })
 
 
-client.on("guildMemberAdd", (member) => {
+client.on("guildMemberAdd", async (member) => {
     const guild = member.guild
     const server = servers[guild.id]
 
-    const common = require("../common")
-    const defaultRoles = common.getRoleResolveables(guild, server.roles.default)
+    const common = require("./common")
+    const defaultRoles = await common.getRoleResolveables(guild, server.roles.default)
 
     member.roles.add(defaultRoles)
 })
 
 
+client.on("interactionCreate", async interaction => {
+    if (!interaction.isCommand()) return;
+
+    const command: ICommand | undefined = commands.get(interaction.commandName);
+    if (!command) { return; }
+
+    await command.callback(interaction, interaction.options, null)
+});
+
+
 client.on("messageCreate", message => {
+    require("./commands/command_base").runMessageCommand(message)
+
     require("./special_commands/questionMe")(message)
 })
 
@@ -197,38 +208,47 @@ client.on("messageReactionRemove", async (reaction, user) => {
 })
 
 
-client.on("voiceStateUpdate", (oldState, newState) => {
-    const guild = newState.guild;
-
-    // Voice chat not empty
-    if ((oldState.channel && oldState.channel.members.size == 0) || (newState.channel && newState.channel.members.size == 0)) {
-        return;
-    }
-
-    // Delete empty voice channels
-    guild.channels.fetch("923679215205892098")
-        .then(channel => {
-            if (!channel || channel.type != "GUILD_CATEGORY") return;
-            for (const child of channel.children.values()) {
-                if (child.members.size != 0 || child.name == "Room #1") continue;
-                child.delete()
-            }
-        })
-
-
-    // Create new voice channel
+// Create new channel when user joins empty channel
+client.on("voiceStateUpdate", async (oldState, newState) => {
+    const guild = oldState.guild;
     const newChannel = newState.channel
-    if (!newChannel) return;
-    if (!newChannel.name.startsWith("Room #")) return;
 
-    guild.channels.fetch("923679215205892098")
-        .then(channel => {
-            if (!channel || channel.type != "GUILD_CATEGORY") return;
-            const lastChannel = channel.children.last()
-            if (!lastChannel) return;
+    if (!newChannel || newChannel.parentId != "923679215205892098" || newChannel.members.size > 1) { return; }
+
+    guild.channels.fetch("923679215205892098") // Room's Catagory
+        .then((catagory) => {
+            if (!catagory || catagory.type != "GUILD_CATEGORY") return;
+
+            const lastChannel = catagory.children.sort((first, second) => { return first.name.localeCompare(second.name); }).last()
+            if (!lastChannel || lastChannel.members.size == 0) return;
 
             const lastChannelId = lastChannel.name.split("#")[1]
-            channel.createChannel(`Room #${Number(lastChannelId) + 1}`, { type: "GUILD_VOICE", userLimit: 99 })
+            catagory.createChannel(`Room #${Number(lastChannelId) + 1}`, { type: "GUILD_VOICE", userLimit: 99 })
+        })
+})
+
+// Delete channel when all user leaves channel
+client.on("voiceStateUpdate", async (oldState, newState) => {
+    const guild = oldState.guild;
+    const oldChannel = oldState.channel
+
+    if (!oldChannel || oldChannel.members.size > 0) { return; }
+
+    // Loop through channels and delete all empty channels. Then create new channel
+    guild.channels.fetch("923679215205892098") // Room's Catagory
+        .then(async (catagory) => {
+            if (!catagory || catagory.type != "GUILD_CATEGORY") return;
+
+            for (const child of catagory.children.values()) {
+                if (child.members.size > 0) { continue; }
+                await child.delete()
+            }
+
+            const lastChannel = catagory.children.sort((first, second) => { return first.name.localeCompare(second.name); }).last()
+            if (!lastChannel || lastChannel.members.size == 0) return;
+
+            const lastChannelId = lastChannel.name.split("#")[1]
+            catagory.createChannel(`Room #${Number(lastChannelId) + 1}`, { type: "GUILD_VOICE", userLimit: 99 })
         })
 })
 
