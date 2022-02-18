@@ -1,8 +1,7 @@
-import Discord from "discord.js"
+import Discord from "discord.js";
 
 module.exports = {
     commands: ["help", "h", "?"],
-    description: "Zayden Help Command",
     callback: (message: Discord.Message, args: string[], text: string) => {
         if (!message.member) { return; }
 
@@ -54,12 +53,12 @@ module.exports = {
             if (!hasPermission) {
                 continue
             }
-            
+
             const mainCommand = typeof command.commands === "string" ? command.commands : command.commands[0]
             const args = command.expectedArgs ? ` ${command.expectedArgs}` : ""
-            
+
             reply += `**${prefix}${mainCommand}${args}**\n`
-            
+
         }
 
         message.channel.send(reply)
