@@ -19,8 +19,13 @@ module.exports = {
             required: true,
             type: "STRING"
         },
+        {
+            name: "party_size",
+            description: "The size of the required party (including you)",
+            type: "NUMBER"
+        }
     ],
-    expectedArgs: "<title>, <description>",
+    expectedArgs: "<title>, <description>, <size>",
     permissionError: "",
     minArgs: 1,
     callback: (interaction: Discord.CommandInteraction, options: Discord.CommandInteractionOptionResolver) => {
@@ -29,12 +34,13 @@ module.exports = {
 
         const title = options.get("title")?.value as string
         const description = options.get("description")?.value as string
+        const partySize = Number(options.get("party_size")?.value)
 
         const embed = new Discord.MessageEmbed()
             .setAuthor(member.displayName)
             .setTitle(title)
             .setDescription(description)
-            .addField("Accepted:", `${member}`)
+            .addField(`Accepted:${isNaN(partySize) ? "" : ` (1/${partySize})`}`, `${member}`)
 
         const join = new Discord.MessageButton()
             .setCustomId("lfg-join")
@@ -49,7 +55,7 @@ module.exports = {
         const row = new Discord.MessageActionRow()
             .addComponents(join, decline)
 
-        interaction.reply({ embeds: [embed], components: [row] })
+        interaction.reply({ content: "<@&944486978693509150>", embeds: [embed], components: [row] })
 
         if (!interaction.channel) { return; }
 
@@ -60,36 +66,60 @@ module.exports = {
         const collector = interaction.channel.createMessageComponentCollector({ filter, componentType: "BUTTON" })
 
         collector.on("collect", async (i) => {
-            const old_embed = i.message.embeds[0] as Discord.MessageEmbed
-            const author = old_embed.author?.name as string
-            const title = old_embed.title as string
-            const description = old_embed.description as string
-            let accepted_array = old_embed.fields[0] ? new Set(old_embed.fields[0].value.split("\n")) : new Set()
+            const oldEmbed = i.message.embeds[0] as Discord.MessageEmbed
+            const author = oldEmbed.author?.name as string
+            const title = oldEmbed.title as string
+            const description = oldEmbed.description as string
+            let acceptedArray = oldEmbed.fields[0] ? new Set(oldEmbed.fields[0].value.split("\n")) : new Set()
+            let reservedArray = new Set()
 
             const new_embed = new Discord.MessageEmbed()
                 .setAuthor(author)
                 .setTitle(title)
                 .setDescription(description)
 
-            const string_member = String(i.member)
+            const stringMember = String(i.member)
 
             if (i.customId == join.customId) {
-                accepted_array.add(string_member)
+                if (!isNaN(partySize) && acceptedArray.size < partySize) {
+                    const numberOfMembers = partySize - acceptedArray.size
+                    for (let j = 0; j < numberOfMembers; j++) {
+                        if (!reservedArray.size) { break; }
 
-                new_embed.addField("Accepted:", Array.from(accepted_array).join("\n"))
+                        const [first] = reservedArray
+                        acceptedArray.add(first)
+                        reservedArray.delete(first)
+                    }
+                }
 
-                i.update({ embeds: [new_embed], components: [row] })
+                if (!isNaN(partySize) && acceptedArray.size >= partySize) {
+                    reservedArray.add(stringMember)
+                } else {
+                    acceptedArray.add(stringMember)
+                }
             }
 
             else if (i.customId == decline.customId) {
-                accepted_array.delete(string_member)
-
-                if (accepted_array.size) {
-                    new_embed.addField("Accepted:", Array.from(accepted_array).join("\n"))
-                }
-
-                i.update({ embeds: [new_embed], components: [row] })
+                acceptedArray.delete(stringMember)
+                reservedArray.delete(stringMember)
             }
+
+            if (acceptedArray.size) {
+                new_embed.addField(`Accepted:${isNaN(partySize) ? "" : ` (${acceptedArray.size}/${partySize})`}`, Array.from(acceptedArray).join("\n"))
+            }
+
+            if (reservedArray.size) {
+                new_embed.addField("Reserved:", Array.from(reservedArray).join("\n"))
+            }
+
+            if (acceptedArray.size == partySize && !reservedArray.size) {
+                const channel = i.channel
+                if (channel) {
+                    i.channel.send(`${i.member} you're party "${title}" is now full.`)
+                }
+            }
+
+            i.update({ embeds: [new_embed], components: [row] })
         })
     }
 }
