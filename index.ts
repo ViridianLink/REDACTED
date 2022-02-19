@@ -240,7 +240,7 @@ client.on("voiceStateUpdate", async (oldState, newState) => {
             if (!catagory || catagory.type != "GUILD_CATEGORY") return;
 
             for (const child of catagory.children.values()) {
-                if (child.members.size > 0) { continue; }
+                if (child.members.size > 0 || child.name == "Room #1") { continue; }
                 await child.delete()
             }
 
