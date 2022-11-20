@@ -74,6 +74,7 @@ const ServerSchema = new mongoose.Schema<IServer>({
     }],
     disabledCommands: [String],
     roles: {
+        default: [String],
         staffRole: String,
         moderationRole: String,
         supportRole: String
