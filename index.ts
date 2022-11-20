@@ -1,7 +1,7 @@
 import Discord from "discord.js";
 import dotenv from "dotenv";
 import fs from "fs";
-import {loadMessageCommands, loadSlashCommands} from "./commands/load_commands";
+import {loadSlashCommands} from "./commands/load_commands";
 import {createServer} from "./servers";
 import {Redacted} from "./client";
 import deployCommands from "./deploy_commands"
@@ -52,7 +52,6 @@ client.on(Discord.Events.ClientReady, async () => {
     // Initialize Servers
     await require("./servers").init(client)
 
-    loadMessageCommands(client)
     loadSlashCommands(client)
 
     if (process.env.NODE_ENV == "development") {
@@ -154,66 +153,32 @@ client.on(Discord.Events.InteractionCreate, async interaction => {
 
 })
 
-// Create new channel when user joins empty channel
 client.on(Discord.Events.VoiceStateUpdate, async (oldState, newState) => {
-    const guild = oldState.guild;
-    const newChannel = newState.channel
+    const roomsCategory = await oldState.guild.channels.fetch("923679215205892098") || await newState.guild.channels.fetch("923679215205892098")
 
-    if (!newChannel || newChannel.parentId != "923679215205892098" || newChannel.members.size > 1) {
+    if (roomsCategory?.type != Discord.ChannelType.GuildCategory) {
+        return console.error("Invalid rooms Category")
+    }
+
+    if (oldState.channel && oldState.channel.members.size == 0) {
+        const emptyRooms = roomsCategory.children.cache.filter(child => child.members.size == 0 && child.name != "Room #1")
+
+        await Promise.all(emptyRooms.map(child => child.delete()))
+    }
+
+    const lastChannel = roomsCategory.children.cache.last()
+
+    if (!lastChannel || lastChannel.members.size == 0) {
         return;
     }
 
-    guild.channels.fetch("923679215205892098") // Room's Catagory
-        .then((category) => {
-            if (!category || category.type != Discord.ChannelType.GuildCategory) return;
+    const lastChannelId = lastChannel.name.split("#")[1]
 
-            const lastChannel = category.children.cache.sort((first, second) => {
-                return first.name.localeCompare(second.name);
-            }).last()
-            if (!lastChannel || lastChannel.members.size == 0) return;
-
-            const lastChannelId = lastChannel.name.split("#")[1]
-            category.children.create({
-                name: `Room #${Number(lastChannelId) + 1}`,
-                type: Discord.ChannelType.GuildVoice,
-                userLimit: 99
-            })
-        })
-})
-
-// Delete channel when all user leaves channel
-client.on(Discord.Events.VoiceStateUpdate, async (oldState) => {
-    const guild = oldState.guild;
-    const oldChannel = oldState.channel
-
-    if (!oldChannel || oldChannel.members.size > 0) {
-        return;
-    }
-
-    // Loop through channels and delete all empty channels. Then create new channel
-    guild.channels.fetch("923679215205892098") // Room's Catagory
-        .then(async (category) => {
-            if (!category || category.type != Discord.ChannelType.GuildCategory) return;
-
-            for (const child of category.children.cache.values()) {
-                if (child.members.size > 0 || child.name == "Room #1") {
-                    continue;
-                }
-                await child.delete()
-            }
-
-            const lastChannel = category.children.cache.sort((first, second) => {
-                return first.name.localeCompare(second.name);
-            }).last()
-            if (!lastChannel || lastChannel.members.size == 0) return;
-
-            const lastChannelId = lastChannel.name.split("#")[1]
-            category.children.create({
-                name: `Room #${Number(lastChannelId) + 1}`,
-                type: Discord.ChannelType.GuildVoice,
-                userLimit: 99
-            })
-        })
+    roomsCategory.children.create({
+        name: `Room #${Number(lastChannelId) + 1}`,
+        type: Discord.ChannelType.GuildVoice,
+        userLimit: 99
+    }).then()
 })
 
 client.on(Discord.Events.Error, error => {
