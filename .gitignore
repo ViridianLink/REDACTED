@@ -78,7 +78,6 @@ web_modules/
 .env.test.local
 .env.production.local
 .env.local
-*.env
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -103,7 +102,6 @@ dist
 
 # vuepress v2.x temp and cache directory
 .temp
-.cache
 
 # Serverless directories
 .serverless/
@@ -130,7 +128,3 @@ dist
 # Config files
 server_configs/
 user_configs/
-
-# Database
-*.db
-

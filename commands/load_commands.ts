@@ -1,68 +1,60 @@
 import Discord from "discord.js";
-import fs from "fs";
 import path from "path";
-import { ICommand } from "./command";
+import fs from "fs";
+import {Redacted} from "../client";
+import {ISlashCommand} from "./commands_slash/command";
 
-function commandBase(commandOptions: ICommand): ICommand {
-    let {
-        eventListener = "all",
-        commands,
-        description = "",
-        options,
-        expectedArgs = "",
-        permissionError = "You do not have permission to run this command",
-        minArgs = 0,
-        maxArgs = null,
-        cooldown = -1,
-        permissions = [],
-        requiredRoles = [],
-        callback
-    } = commandOptions
+const ignoreFiles = ["command.ts", "command_base.ts", "functions.ts", "functions.ts"]
 
-    if (typeof (commands) == "string") {
-        commands = [commands]
-    }
-
-    if (permissionError.length == 0) {
-        permissionError = "You do not have permission to run this command"
-    }
-
-    if (typeof (requiredRoles) == "string") {
-        requiredRoles = [requiredRoles]
-    }
-
-    return { eventListener, commands, description, options, expectedArgs, permissionError, minArgs, maxArgs, cooldown, permissions, requiredRoles, callback }
-}
-
-function loadCommands(): Discord.Collection<string, ICommand> {
-    const ignoreFiles = ["command_base.ts", "load_commands.ts", "command.ts"]
-    const commands = new Discord.Collection<string, ICommand>()
+export function loadSlashCommands(client: Redacted) {
+    client.slashCommands = new Discord.Collection();
 
     function readCommands(dir: string) {
-        const commandFiles = fs.readdirSync(path.join(__dirname, dir))
+        const files = fs.readdirSync(path.join(__dirname, dir)).filter(file => !ignoreFiles.includes(file));
 
-        for (const file of commandFiles) {
-            if (file.startsWith("__") || ignoreFiles.includes(file)) { continue; }
-
+        for (const file of files) {
             const stat = fs.lstatSync(path.join(__dirname, dir, file))
             if (stat.isDirectory()) {
                 readCommands(path.join(dir, file))
                 continue
             }
 
-            let commandOptions: ICommand = require(path.join(__dirname, dir, file))
-            commandOptions = commandBase(commandOptions)
+            const command: ISlashCommand = require(path.join(__dirname, dir, file))
 
-            if (commandOptions.commands && commandOptions.callback) {
-                for (const c of commandOptions.commands) {
-                    commands.set(c, commandOptions)
-                }
+            if ('data' in command && 'execute' in command) {
+                client.slashCommands!.set(command.data.name, command);
+            } else {
+                console.log(`[WARNING] The command at ${file} is missing a required "data" or "execute" property.`);
             }
         }
     }
 
-    readCommands("./")
-    return commands
+    readCommands("./commands_slash")
+
+    if (client) {
+        console.log(`Loaded ${client.slashCommands.size} slash commands`)
+    }
 }
 
-export const commands = loadCommands()
+export function loadMessageCommands(client: Redacted) {
+    function readCommands(dir: string) {
+        const files = fs.readdirSync(path.join(__dirname, dir)).filter(file => !ignoreFiles.includes(file));
+
+        for (const file of files) {
+            const stat = fs.lstatSync(path.join(__dirname, dir, file))
+            if (stat.isDirectory()) {
+                readCommands(path.join(dir, file))
+                continue;
+            }
+
+            const command = require(path.join(__dirname, dir, file))
+
+            if (client) {
+                const commandBase = require("./commands_message/command_base")
+                commandBase(client, command)
+            }
+        }
+    }
+
+    readCommands("./commands_message")
+}
