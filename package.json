@@ -20,7 +20,9 @@
   "dependencies": {
     "discord.js": "latest",
     "dotenv": "latest",
-    "mongoose": "latest",
-    "ts-node": "^10.9.1"
+    "mongoose": "latest"
+  },
+  "devDependencies": {
+    "ts-node": "latest"
   }
 }
