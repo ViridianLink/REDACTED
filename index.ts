@@ -95,7 +95,7 @@ Some important rules:
 
     tasks.push(member.roles.add(defaultRoles))
 
-    await Promise.all(tasks)
+    Promise.all(tasks).catch()
 })
 
 client.on(Discord.Events.MessageReactionAdd, async (reaction, user) => {
