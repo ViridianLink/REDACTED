@@ -71,11 +71,31 @@ client.on(Discord.Events.GuildCreate, guild => {
 
 
 client.on(Discord.Events.GuildMemberAdd, async (member) => {
+    const welcomeMessage = `
+**Welcome to Redacted**
+
+Due to our growing and diverse community we've added this welcome message to give everyone the smoothest experience.
+
+Getting Started:
+1. Pick your roles in <#931986133762588752> and <#932004859899691018>
+2. Read the rules in <#931986133762588752>
+
+Some important rules:
+- Please avoid any racism, sexism and other discrimination
+- Due to a mental disorder called Misophonia please avoid any chewing, eating or crunching noises.
+    - If you wish to eat, please mute your mic beforehand
+`
+
+    const tasks: Promise<any>[] = []
+    tasks.push(member.send(welcomeMessage))
+
     const server = await getServer(member.guild.id)
 
     const defaultRoles = await getRoleResolvable(member.guild, server.roles.default)
 
-    member.roles.add(defaultRoles).then()
+    tasks.push(member.roles.add(defaultRoles))
+
+    await Promise.all(tasks)
 })
 
 client.on(Discord.Events.MessageReactionAdd, async (reaction, user) => {
