@@ -1,24 +1,19 @@
 import Discord from "discord.js";
 import dotenv from "dotenv";
 import fs from "fs";
-import {loadSlashCommands} from "./commands/load_commands";
-import {createServer} from "./servers";
-import {Redacted} from "./client";
+import { loadSlashCommands } from "./commands/load_commands";
+import { createServer } from "./servers";
+import { Redacted } from "./client";
 import deployCommands from "./deploy_commands"
 import mongoose from "mongoose";
-import {getServer, Server} from "./models/server";
-import {getRoleResolvable} from "./common";
+import { getServer, Server } from "./models/server";
+import { getRoleResolvable } from "./common";
 
-switch (process.env.NODE_ENV) {
-    case "development":
-        dotenv.config({path: "./.env.local"})
-        break;
-    default:
-        dotenv.config()
-        break;
+if (process.env.NODE_ENV == "development") {
+    dotenv.config()
 }
 
-const dbURI = process.env.MONGO_ATLAS_URI || ""
+const dbURI = process.env.REDACTED_MONGO_URI || ""
 mongoose.connect(dbURI)
     .then(() => console.log("Connected to DB"))
     .catch(console.error)
@@ -46,7 +41,7 @@ client.on(Discord.Events.ClientReady, async () => {
     console.log(`REDACTED is Running, version: ${botConfig.version}`);
 
     if (client.user) {
-        client.user.setPresence({activities: [{name: "Destiny 2"}], status: "online"})
+        client.user.setPresence({ activities: [{ name: "Destiny 2" }], status: "online" })
     }
 
     // Initialize Servers
@@ -97,7 +92,7 @@ client.on(Discord.Events.MessageReactionAdd, async (reaction, user) => {
     const guild = reaction.message.guild
     if (!guild) return;
 
-    const server = await Server.findOne({id: guild.id}).exec()
+    const server = await Server.findOne({ id: guild.id }).exec()
     if (!server) return;
 
     for (const reactionRole of server.reactionRoles) {
@@ -123,7 +118,7 @@ client.on(Discord.Events.MessageReactionRemove, async (reaction, user) => {
     const guild = reaction.message.guild
     if (!guild) return;
 
-    const server = await Server.findOne({id: guild.id}).exec()
+    const server = await Server.findOne({ id: guild.id }).exec()
     if (!server) return;
 
     for (const reactionRole of server.reactionRoles) {
@@ -200,7 +195,7 @@ client.on(Discord.Events.Error, error => {
     console.log(`Error Encountered ${error.message}`);
 })
 
-client.login(process.env.TOKEN).then()
+client.login(process.env.REDACTED_TOKEN).then()
 
 process.on("uncaughtException", (error) => {
     fs.writeFileSync("crash.txt", `Uncaught Exception: ${error.message}`);
