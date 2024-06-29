@@ -1,8 +1,0 @@
-{
-  "version": "2.0.1",
-  "prefix": "!",
-  "dbFile": "./database/database.db",
-  "developers": [
-    "211486447369322506"
-  ]
-}
