@@ -10,6 +10,7 @@ mod handler;
 // pub mod modals;
 // mod models;
 pub mod modules;
+mod sqlx_lib;
 // mod sqlx_lib;
 // pub mod state;
 // mod utils;
@@ -18,9 +19,10 @@ pub mod modules;
 //     goodmorning::GoodMorningLockedUsers, goodnight::GoodNightLockedUsers,
 // };
 use serenity::{
-    all::{CommandInteraction, Context, CreateCommand, GatewayIntents, UserId},
-    async_trait, Client,
+    all::{GatewayIntents, UserId},
+    Client,
 };
+use sqlx_lib::PostgresPool;
 // use sqlx::postgres::PgPoolOptions;
 // use sqlx_lib::PostgresPool;
 // use state::State;
@@ -43,16 +45,11 @@ async fn main() -> Result<()> {
         .await?;
 
     let mut data = client.data.write().await;
-    // let pool = PgPoolOptions::new()
-    //     .max_connections(10)
-    //     .min_connections(3)
-    //     .connect(&env::var("DATABASE_URL")?)
-    //     .await?;
+    data.insert::<PostgresPool>(PostgresPool::init().await?);
     // data.insert::<State>(State::new());
     // data.insert::<ImageCache>(ImageCache::new());
     // data.insert::<GoodMorningLockedUsers>(Vec::new());
     // data.insert::<GoodNightLockedUsers>(Vec::new());
-    // data.insert::<PostgresPool>(pool);
     drop(data);
 
     client.start().await?;

@@ -1,57 +1,33 @@
 // mod interaction_create;
 // mod message;
 // mod reaction;
+mod interaction_command;
+mod reaction_add;
+mod reaction_remove;
 mod ready;
 
 use serenity::all::{Event, InteractionCreateEvent, RawEventHandler};
 use serenity::async_trait;
-use serenity::model::channel::{Message, Reaction};
-use serenity::model::gateway::Ready;
 use serenity::model::prelude::Interaction;
 use serenity::prelude::Context;
 
 use crate::{Result, OSCAR_SIX_ID};
+use interaction_command::interaction_command;
 
 // pub use ready::OnReady;
 
 pub struct Handler;
 
 impl Handler {
-    async fn message(&self, ctx: &Context, msg: Message) -> Result<()> {
-        // message::message(ctx, msg).await?;
-
-        Ok(())
-    }
-
-    async fn reaction_add(&self, ctx: &Context, reaction: Reaction) -> Result<()> {
-        // reaction::reaction_add(ctx, reaction).await?;
-
-        Ok(())
-    }
-
-    async fn reaction_remove(&self, ctx: &Context, reaction: Reaction) -> Result<()> {
-        // reaction::reaction_remove(ctx, reaction).await?;
-
-        Ok(())
-    }
-
-    async fn ready(&self, ctx: &Context, ready: Ready) -> Result<()> {
-        ready::ready(ctx, ready).await?;
-
-        Ok(())
-    }
-
-    async fn interaction_create(&self, ctx: &Context, interaction: Interaction) -> Result<()> {
-        // match &interaction {
-        //     Interaction::Command(command) => {
-        //         interaction_create::interaction_command(ctx, command).await?
-        //     }
-        //     Interaction::Component(component) => {
-        //         interaction_create::interaction_component(ctx, component).await?
-        //     }
-        //     Interaction::Modal(modal) => interaction_create::interaction_modal(ctx, modal).await?,
-        //     _ => unimplemented!("Interaction not implemented: {:?}", interaction.kind()),
-        // };
+    async fn interaction_create(ctx: &Context, interaction: Interaction) -> Result<()> {
+        match &interaction {
+            Interaction::Command(command) => interaction_command(ctx, command).await?,
+            //     Interaction::Component(component) => {
+            //         interaction_create::interaction_component(ctx, component).await?
+            //     }
+            //     Interaction::Modal(modal) => interaction_create::interaction_modal(ctx, modal).await?,
+            _ => unimplemented!("Interaction not implemented: {:?}", interaction.kind()),
+        };
 
         Ok(())
     }
@@ -72,12 +48,11 @@ impl RawEventHandler for Handler {
 
         let result = match ev {
             Event::InteractionCreate(interaction) => {
-                self.interaction_create(&ctx, interaction.interaction).await
+                Self::interaction_create(&ctx, interaction.interaction).await
             }
-            Event::MessageCreate(msg) => self.message(&ctx, msg.message).await,
-            Event::ReactionAdd(reaction) => self.reaction_add(&ctx, reaction.reaction).await,
-            Event::ReactionRemove(reaction) => self.reaction_remove(&ctx, reaction.reaction).await,
-            Event::Ready(ready) => self.ready(&ctx, ready.ready).await,
+            Event::ReactionAdd(reaction) => Self::reaction_add(&ctx, reaction.reaction).await,
+            Event::ReactionRemove(reaction) => Self::reaction_remove(&ctx, reaction.reaction).await,
+            Event::Ready(ready) => Self::ready(&ctx, ready.ready).await,
             _ => Ok(()),
         };
 

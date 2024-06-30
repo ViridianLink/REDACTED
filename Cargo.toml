@@ -4,17 +4,17 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+zayden-core = { git = "https://github.com/zayden-bot/slash-command-core.git", branch = "master" }
 reaction-roles = { git = "https://github.com/zayden-bot/reaction-roles.git", branch = "main" }
-async-trait = "*"
+async-trait = { version = "*", default-features = false }
 # chrono = "*"
-dotenvy = "*"
-# futures = "*"
+dotenvy = { version = "*", default-features = false }
 # lazy_static = "*"
 # rand = "*"
 # reqwest = { version = "*", features = ["json"] }
 # serde = "*"
 # serde_json = "1.0.117"
-sqlx = { version = "*", features = [
+sqlx = { version = "*", default-features = false, features = [
     "runtime-tokio",
     "tls-native-tls",
     "postgres",
@@ -26,6 +26,7 @@ tokio = { version = "*", default-features = false, features = [
     "macros",
     "rt-multi-thread",
 ] }
+futures = { version = "*", default-features = false }
 # walkdir = "*"
 
 [dependencies.serenity]

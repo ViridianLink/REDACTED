@@ -1,9 +1,15 @@
+use serenity::all::Reaction;
+use zayden_core::ErrorResponse;
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub enum Error {
-    // ConversionError,
-    // UnknownCommand(String),
+    UnknownCommand(String),
+
+    CommandNotInGuild,
+    MemberNotFound(Reaction),
+    UserNotFound(Reaction),
     // CommandNotFound,
     // DataNotFound,
     // TimeDelta,
@@ -23,13 +29,13 @@ pub enum Error {
     // PatreonAccountNotFound(String),
     // NotInGuild,
     // NotInteractionAuthor,
+    ReactionRole(reaction_roles::Error),
 
     // FamilyError(crate::modules::family::FamilyError),
-
     Dotenvy(dotenvy::Error),
     Serenity(serenity::Error),
     SerenityTimestamp(serenity::model::timestamp::InvalidTimestamp),
-    // Sqlx(sqlx::Error),
+    Sqlx(sqlx::Error),
     EnvVar(std::env::VarError),
     // Reqwest(reqwest::Error),
     // Cron(cron::error::Error),
@@ -39,9 +45,10 @@ pub enum Error {
     // Bunny(bunny_cdn_wrapper::Error),
 }
 
-impl Error {
-    pub fn as_response(&self) -> String {
+impl ErrorResponse for Error {
+    fn to_response(&self) -> String {
         match self {
+            Error::ReactionRole(e) => e.to_response(),
             // Error::PatreonAccountNotFound(_) => String::from("Patreon account not found.\nIf you've recently joined, please use `/patreon_user login` to manually update the cache and link your Discord account."),
             // Error::NotInteractionAuthor => String::from("You are not the author of this interaction."),
             // Error::FamilyError(ref e) => e.as_response(),
@@ -57,6 +64,12 @@ impl std::fmt::Display for Error {
 }
 
 impl std::error::Error for Error {}
+
+impl From<reaction_roles::error::Error> for Error {
+    fn from(e: reaction_roles::Error) -> Self {
+        Error::ReactionRole(e)
+    }
+}
 
 // impl From<crate::modules::family::FamilyError> for Error {
 //     fn from(e: crate::modules::family::FamilyError) -> Self {
@@ -94,13 +107,11 @@ impl From<serenity::model::timestamp::InvalidTimestamp> for Error {
     }
 }
 
-// impl From<sqlx::Error> for Error {
-//     fn from(e: sqlx::Error) -> Self {
-//         Error::Sqlx(e)
-//     }
-// }
-
-
+impl From<sqlx::Error> for Error {
+    fn from(e: sqlx::Error) -> Self {
+        Error::Sqlx(e)
+    }
+}
 
 // impl From<reqwest::Error> for Error {
 //     fn from(e: reqwest::Error) -> Self {
@@ -113,8 +124,6 @@ impl From<serenity::model::timestamp::InvalidTimestamp> for Error {
 //         Error::Cron(e)
 //     }
 // }
-
-
 
 // impl From<std::num::ParseIntError> for Error {
 //     fn from(e: std::num::ParseIntError) -> Self {
