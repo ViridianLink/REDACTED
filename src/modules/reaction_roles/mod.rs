@@ -3,14 +3,15 @@ pub mod reaction;
 pub mod slash_command;
 
 use async_trait::async_trait;
-use message::ReactionRoleMessageCommand;
 use reaction_roles::reaction_roles_manager::ReactionRole;
 use reaction_roles::ReactionRolesManager;
 use serenity::all::CreateCommand;
-use slash_command::ReactionRoleCommand;
 use sqlx::any::AnyQueryResult;
 use sqlx::{Pool, Postgres};
 use zayden_core::SlashCommand;
+
+pub use message::ReactionRoleMessageCommand;
+pub use slash_command::ReactionRoleCommand;
 
 pub fn register() -> Vec<CreateCommand> {
     vec![

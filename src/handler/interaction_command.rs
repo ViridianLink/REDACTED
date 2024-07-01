@@ -1,8 +1,8 @@
 use serenity::all::{CommandInteraction, Context, EditInteractionResponse, Mentionable};
 use zayden_core::{ErrorResponse, SlashCommand};
 
-use crate::modules::reaction_roles::message::ReactionRoleMessageCommand;
-use crate::modules::reaction_roles::slash_command::ReactionRoleCommand;
+use crate::modules::reaction_roles::ReactionRoleCommand;
+use crate::modules::reaction_roles::ReactionRoleMessageCommand;
 use crate::{Error, Result, OSCAR_SIX_ID};
 
 pub(super) async fn interaction_command(ctx: &Context, command: &CommandInteraction) -> Result<()> {
