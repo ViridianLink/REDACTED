@@ -2,6 +2,7 @@
 // mod message;
 // mod reaction;
 mod interaction_command;
+mod interaction_component;
 mod reaction_add;
 mod reaction_remove;
 mod ready;
@@ -13,6 +14,7 @@ use serenity::prelude::Context;
 
 use crate::{Result, OSCAR_SIX_ID};
 use interaction_command::interaction_command;
+use interaction_component::interaction_component;
 
 // pub use ready::OnReady;
 
@@ -22,9 +24,7 @@ impl Handler {
     async fn interaction_create(ctx: &Context, interaction: Interaction) -> Result<()> {
         match &interaction {
             Interaction::Command(command) => interaction_command(ctx, command).await?,
-            //     Interaction::Component(component) => {
-            //         interaction_create::interaction_component(ctx, component).await?
-            //     }
+            Interaction::Component(component) => interaction_component(ctx, component).await?,
             //     Interaction::Modal(modal) => interaction_create::interaction_modal(ctx, modal).await?,
             _ => unimplemented!("Interaction not implemented: {:?}", interaction.kind()),
         };
