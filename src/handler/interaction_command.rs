@@ -1,16 +1,33 @@
 use serenity::all::{CommandInteraction, Context, EditInteractionResponse, Mentionable};
 use zayden_core::{ErrorResponse, SlashCommand};
 
-use crate::modules::reaction_roles::ReactionRoleCommand;
-use crate::modules::reaction_roles::ReactionRoleMessageCommand;
+use crate::modules::family::slash_commands::{
+    AdoptCommand, BlockCommand, ChildrenCommand, MarryCommand, ParentsCommand, PartnersCommand,
+    RelationshipCommand, SiblingsCommand, TreeCommand, UnblockCommand,
+};
+use crate::modules::reaction_roles::{ReactionRoleCommand, ReactionRoleMessageCommand};
 use crate::{Error, Result, OSCAR_SIX_ID};
 
 pub(super) async fn interaction_command(ctx: &Context, command: &CommandInteraction) -> Result<()> {
     println!("{} ran command: {}", command.user.name, command.data.name);
 
     let result = match command.data.name.as_str() {
+        //region Family
+        "adopt" => AdoptCommand::run(ctx, command).await,
+        "block" => BlockCommand::run(ctx, command).await,
+        "children" => ChildrenCommand::run(ctx, command).await,
+        "marry" => MarryCommand::run(ctx, command).await,
+        "parents" => ParentsCommand::run(ctx, command).await,
+        "partners" => PartnersCommand::run(ctx, command).await,
+        "relationship" => RelationshipCommand::run(ctx, command).await,
+        "siblings" => SiblingsCommand::run(ctx, command).await,
+        "tree" => TreeCommand::run(ctx, command).await,
+        "unblock" => UnblockCommand::run(ctx, command).await,
+
+        //region Reaction Roles
         "reaction_role" => ReactionRoleCommand::run(ctx, command).await,
         "reaction_role_message" => ReactionRoleMessageCommand::run(ctx, command).await,
+        //endregion
         _ => Err(Error::UnknownCommand(command.data.name.clone())),
     };
 

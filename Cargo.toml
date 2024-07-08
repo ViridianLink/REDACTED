@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 zayden-core = { git = "https://github.com/zayden-bot/slash-command-core.git", branch = "master" }
 reaction-roles = { git = "https://github.com/zayden-bot/reaction-roles.git", branch = "main" }
+family = { git = "https://github.com/zayden-bot/family.git", branch = "master" }
 async-trait = { version = "*", default-features = false }
 # chrono = "*"
 dotenvy = { version = "*", default-features = false }
@@ -27,6 +28,7 @@ tokio = { version = "*", default-features = false, features = [
     "rt-multi-thread",
 ] }
 futures = { version = "*", default-features = false }
+charming = { version = "*", default-features = false, features = ["ssr"] }
 # walkdir = "*"
 
 [dependencies.serenity]
@@ -43,3 +45,10 @@ features = [
     "utils",
     "rustls_backend",
 ]
+
+[profile.release]
+opt-level = 3
+panic = "abort"
+strip = true
+codegen-units = 1
+lto = "fat"
