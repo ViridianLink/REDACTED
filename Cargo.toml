@@ -7,6 +7,7 @@ edition = "2021"
 zayden-core = { git = "https://github.com/zayden-bot/slash-command-core.git", branch = "master" }
 reaction-roles = { git = "https://github.com/zayden-bot/reaction-roles.git", branch = "main" }
 family = { git = "https://github.com/zayden-bot/family.git", branch = "master" }
+gold-star = { git = "https://github.com/zayden-bot/gold-star.git", branch = "main" }
 async-trait = { version = "*", default-features = false }
 # chrono = "*"
 dotenvy = { version = "*", default-features = false }

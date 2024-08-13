@@ -32,6 +32,7 @@ pub enum Error {
     // NotInteractionAuthor,
     ReactionRole(reaction_roles::Error),
     Family(family::Error),
+    GoldStar(gold_star::Error),
 
     // FamilyError(crate::modules::family::FamilyError),
     Dotenvy(dotenvy::Error),
@@ -53,6 +54,7 @@ impl ErrorResponse for Error {
         match self {
             Error::ReactionRole(e) => e.to_response(),
             Error::Family(e) => e.to_response(),
+            Error::GoldStar(e) => e.to_response(),
             // Error::PatreonAccountNotFound(_) => String::from("Patreon account not found.\nIf you've recently joined, please use `/patreon_user login` to manually update the cache and link your Discord account."),
             // Error::NotInteractionAuthor => String::from("You are not the author of this interaction."),
             // Error::FamilyError(ref e) => e.as_response(),
@@ -69,15 +71,21 @@ impl std::fmt::Display for Error {
 
 impl std::error::Error for Error {}
 
-impl From<reaction_roles::Error> for Error {
-    fn from(e: reaction_roles::Error) -> Self {
-        Error::ReactionRole(e)
-    }
-}
-
 impl From<family::Error> for Error {
     fn from(e: family::Error) -> Self {
         Error::Family(e)
+    }
+}
+
+impl From<gold_star::Error> for Error {
+    fn from(e: gold_star::Error) -> Self {
+        Error::GoldStar(e)
+    }
+}
+
+impl From<reaction_roles::Error> for Error {
+    fn from(e: reaction_roles::Error) -> Self {
+        Error::ReactionRole(e)
     }
 }
 
