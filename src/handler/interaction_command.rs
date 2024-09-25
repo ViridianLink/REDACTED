@@ -1,4 +1,4 @@
-use serenity::all::{CommandInteraction, Context, EditInteractionResponse, Mentionable};
+use twilight_model::application::interaction::Interaction;
 use zayden_core::{ErrorResponse, SlashCommand};
 
 use crate::modules::family::slash_commands::{
@@ -7,9 +7,9 @@ use crate::modules::family::slash_commands::{
 };
 use crate::modules::gold_star::slash_commands::{GiveStarCommand, StarsCommand};
 use crate::modules::reaction_roles::{ReactionRoleCommand, ReactionRoleMessageCommand};
-use crate::{Error, Result, OSCAR_SIX_ID};
+use crate::{Client, Error, Result, OSCAR_SIX_ID};
 
-pub(super) async fn interaction_command(ctx: &Context, command: &CommandInteraction) -> Result<()> {
+pub(super) async fn interaction_command(client: Client, command: Interaction) -> Result<()> {
     println!("{} ran command: {}", command.user.name, command.data.name);
 
     let result = match command.data.name.as_str() {

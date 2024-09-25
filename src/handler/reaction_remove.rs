@@ -1,14 +1,10 @@
-use serenity::all::{Context, Reaction};
+use twilight_model::gateway::GatewayReaction;
 
 use crate::modules::reaction_roles;
-use crate::Result;
+use crate::{Client, Result};
 
-use super::Handler;
+pub(super) async fn reaction_remove(client: Client, reaction: GatewayReaction) -> Result<()> {
+    reaction_roles::reaction::reaction_remove(client, &reaction).await?;
 
-impl Handler {
-    pub(super) async fn reaction_remove(ctx: &Context, reaction: Reaction) -> Result<()> {
-        reaction_roles::reaction::reaction_remove(ctx, &reaction).await?;
-
-        Ok(())
-    }
+    Ok(())
 }

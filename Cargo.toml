@@ -32,6 +32,15 @@ futures = { version = "*", default-features = false }
 charming = { version = "*", default-features = false, features = ["ssr"] }
 # walkdir = "*"
 
+twilight-cache-inmemory = { version = "*", default-features = false }
+twilight-gateway = { version = "*", default-features = false }
+twilight-http = { version = "*", default-features = false }
+twilight-model = { version = "*", default-features = false }
+tracing = { version = "*", default-features = false }
+tracing-subscriber = { version = "*", default-features = false, features = [
+    "fmt",
+] }
+
 [dependencies.serenity]
 git = "https://github.com/serenity-rs/serenity"
 branch = "current"

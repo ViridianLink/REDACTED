@@ -9,20 +9,19 @@ mod handler;
 // mod image_cache;
 // pub mod modals;
 // mod models;
+mod client;
 pub mod modules;
 mod sqlx_lib;
 // mod sqlx_lib;
 // pub mod state;
 // mod utils;
 
+pub use client::Client;
+use handler::handle_event;
 // use guild_commands::college_kings::{
 //     goodmorning::GoodMorningLockedUsers, goodnight::GoodNightLockedUsers,
 // };
-use serenity::{
-    all::{GatewayIntents, UserId},
-    Client,
-};
-use sqlx_lib::PostgresPool;
+use serenity::all::UserId;
 // use sqlx::postgres::PgPoolOptions;
 // use sqlx_lib::PostgresPool;
 // use state::State;
@@ -36,23 +35,27 @@ pub const OSCAR_SIX_ID: UserId = UserId::new(211486447369322506);
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    dotenvy::dotenv()?;
+    tracing_subscriber::fmt::init();
 
-    let token = &env::var("DISCORD_TOKEN")?;
+    let token = env::var("DISCORD_TOKEN")?;
 
-    let mut client = Client::builder(token, GatewayIntents::all())
-        .raw_event_handler(handler::Handler)
-        .await?;
+    let client = Client::new(token);
 
-    let mut data = client.data.write().await;
-    data.insert::<PostgresPool>(PostgresPool::init().await?);
-    // data.insert::<State>(State::new());
-    // data.insert::<ImageCache>(ImageCache::new());
-    // data.insert::<GoodMorningLockedUsers>(Vec::new());
-    // data.insert::<GoodNightLockedUsers>(Vec::new());
-    drop(data);
-
-    client.start().await?;
+    start_loop(client).await;
 
     Ok(())
+}
+
+async fn start_loop(client: Client) {
+    while let item = client.shard.next_event().await {
+        let Ok(event) = item else {
+            tracing::warn!(source = ?item.unwrap_err(), "error receiving event");
+
+            continue;
+        };
+
+        client.cache.update(&event);
+
+        tokio::spawn(handle_event(client, event));
+    }
 }

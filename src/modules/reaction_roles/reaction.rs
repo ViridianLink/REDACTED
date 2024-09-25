@@ -1,26 +1,29 @@
 use reaction_roles::ReactionRoleReaction;
-use serenity::all::{Context, Reaction};
 use sqlx::Postgres;
+use twilight_model::gateway::GatewayReaction;
 
-use crate::sqlx_lib::PostgresPool;
-use crate::Result;
+use crate::{Client, Result};
 
 use super::ReactionRolesTable;
 
-pub async fn reaction_add(ctx: &Context, reaction: &Reaction) -> Result<()> {
-    let pool = PostgresPool::get(ctx).await;
-
-    ReactionRoleReaction::reaction_add::<Postgres, ReactionRolesTable>(ctx, reaction, &pool)
-        .await?;
+pub async fn reaction_add(client: Client, reaction: &GatewayReaction) -> Result<()> {
+    ReactionRoleReaction::reaction_add::<Postgres, ReactionRolesTable>(
+        client,
+        reaction,
+        &client.data.pool,
+    )
+    .await?;
 
     Ok(())
 }
 
-pub async fn reaction_remove(ctx: &Context, reaction: &Reaction) -> Result<()> {
-    let pool = PostgresPool::get(ctx).await;
-
-    ReactionRoleReaction::reaction_remove::<Postgres, ReactionRolesTable>(ctx, reaction, &pool)
-        .await?;
+pub async fn reaction_remove(client: Client, reaction: &GatewayReaction) -> Result<()> {
+    ReactionRoleReaction::reaction_remove::<Postgres, ReactionRolesTable>(
+        client,
+        reaction,
+        &client.data.pool,
+    )
+    .await?;
 
     Ok(())
 }

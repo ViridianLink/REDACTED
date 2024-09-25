@@ -1,37 +1,24 @@
-// mod interaction_create;
-// mod message;
-// mod reaction;
+use std::sync::Arc;
+
+use twilight_gateway::Event;
+use twilight_http::Client as HttpClient;
+use twilight_model::application::interaction::{Interaction, InteractionType};
+
 mod interaction_command;
 mod interaction_component;
 mod reaction_add;
 mod reaction_remove;
 mod ready;
 
-use serenity::all::{Event, InteractionCreateEvent, RawEventHandler};
-use serenity::async_trait;
-use serenity::model::prelude::Interaction;
-use serenity::prelude::Context;
-
-use crate::{Result, OSCAR_SIX_ID};
 use interaction_command::interaction_command;
 use interaction_component::interaction_component;
+use reaction_add::reaction_add;
+use reaction_remove::reaction_remove;
+use ready::ready;
 
-// pub use ready::OnReady;
+use crate::{Client, Result, OSCAR_SIX_ID};
 
 pub struct Handler;
-
-impl Handler {
-    async fn interaction_create(ctx: &Context, interaction: Interaction) -> Result<()> {
-        match &interaction {
-            Interaction::Command(command) => interaction_command(ctx, command).await?,
-            Interaction::Component(component) => interaction_component(ctx, component).await?,
-            //     Interaction::Modal(modal) => interaction_create::interaction_modal(ctx, modal).await?,
-            _ => unimplemented!("Interaction not implemented: {:?}", interaction.kind()),
-        };
-
-        Ok(())
-    }
-}
 
 #[async_trait]
 impl RawEventHandler for Handler {
@@ -64,5 +51,28 @@ impl RawEventHandler for Handler {
                 let _ = channel.say(&ctx, msg).await;
             }
         }
+    }
+}
+
+pub async fn handle_event(client: Client, event: Event) {
+    let result = match event {
+        Event::InteractionCreate(interaction) => interaction_create(client, interaction.0).await,
+        Event::ReactionAdd(reaction) => reaction_add(client, reaction.0).await,
+        Event::ReactionRemove(reaction) => reaction_remove(client, reaction.0).await,
+        Event::Ready(r) => ready(client, r).await,
+        _ => Ok(()),
+
+        // Event::MessageCreate(msg) if msg.content == "!ping" => {
+        //     http.create_message(msg.channel_id).content("Pong!").await?;
+        // }
+        _ => Ok(()),
+    };
+}
+
+async fn interaction_create(client: Client, interaction: Interaction) -> Result<()> {
+    match interaction.kind {
+        InteractionType::ApplicationCommand => interaction_command(client, interaction).await,
+        InteractionType::MessageComponent => interaction_component(client, interaction).await,
+        _ => Ok(()),
     }
 }

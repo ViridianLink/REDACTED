@@ -1,14 +1,10 @@
-use serenity::all::{ComponentInteraction, CreateInteractionResponseFollowup};
-use serenity::all::{Context, Mentionable};
+use twilight_model::application::interaction::Interaction;
 use zayden_core::ErrorResponse;
 
 use crate::modules::family::components::{AdoptComponent, MarryComponent};
-use crate::{Error, Result, OSCAR_SIX_ID};
+use crate::{Client, Error, Result, OSCAR_SIX_ID};
 
-pub(super) async fn interaction_component(
-    ctx: &Context,
-    component: &ComponentInteraction,
-) -> Result<()> {
+pub(super) async fn interaction_component(client: Client, component: Interaction) -> Result<()> {
     println!(
         "{} ran component: {}",
         component.user.name, component.data.custom_id
