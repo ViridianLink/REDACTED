@@ -8,6 +8,7 @@ zayden-core = { git = "https://github.com/zayden-bot/slash-command-core.git", br
 reaction-roles = { git = "https://github.com/zayden-bot/reaction-roles.git", branch = "main" }
 family = { git = "https://github.com/zayden-bot/family.git", branch = "master" }
 gold-star = { git = "https://github.com/zayden-bot/gold-star.git", branch = "main" }
+temp-voice = { git = "https://github.com/zayden-bot/temp-voice.git", branch = "master" }
 async-trait = { version = "*", default-features = false }
 # chrono = "*"
 dotenvy = { version = "*", default-features = false }

@@ -6,6 +6,7 @@ mod interaction_component;
 mod reaction_add;
 mod reaction_remove;
 mod ready;
+mod voice_state_update;
 
 use serenity::all::{Event, InteractionCreateEvent, RawEventHandler};
 use serenity::async_trait;
@@ -53,6 +54,10 @@ impl RawEventHandler for Handler {
             Event::ReactionAdd(reaction) => Self::reaction_add(&ctx, reaction.reaction).await,
             Event::ReactionRemove(reaction) => Self::reaction_remove(&ctx, reaction.reaction).await,
             Event::Ready(ready) => Self::ready(&ctx, ready.ready).await,
+            Event::VoiceStateUpdate(voice_state) => {
+                Self::voice_state_update(&ctx, voice_state.voice_state).await
+            }
+
             _ => Ok(()),
         };
 

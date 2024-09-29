@@ -7,6 +7,7 @@ use crate::modules::family::slash_commands::{
 };
 use crate::modules::gold_star::slash_commands::{GiveStarCommand, StarsCommand};
 use crate::modules::reaction_roles::{ReactionRoleCommand, ReactionRoleMessageCommand};
+use crate::modules::temp_voice::VoiceCommand;
 use crate::{Error, Result, OSCAR_SIX_ID};
 
 pub(super) async fn interaction_command(ctx: &Context, command: &CommandInteraction) -> Result<()> {
@@ -35,6 +36,9 @@ pub(super) async fn interaction_command(ctx: &Context, command: &CommandInteract
         "reaction_role" => ReactionRoleCommand::run(ctx, command).await,
         "reaction_role_message" => ReactionRoleMessageCommand::run(ctx, command).await,
         //endregion
+        // region Temp Voice
+        "voice" => VoiceCommand::run(ctx, command).await,
+        // endregion
         _ => Err(Error::UnknownCommand(command.data.name.clone())),
     };
 

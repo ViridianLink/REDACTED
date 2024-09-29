@@ -18,15 +18,14 @@ mod sqlx_lib;
 // use guild_commands::college_kings::{
 //     goodmorning::GoodMorningLockedUsers, goodnight::GoodNightLockedUsers,
 // };
-use serenity::{
-    all::{GatewayIntents, UserId},
-    Client,
-};
+use serenity::all::{GatewayIntents, UserId};
+use serenity::Client;
 use sqlx_lib::PostgresPool;
+use temp_voice::VoiceStateCache;
 // use sqlx::postgres::PgPoolOptions;
 // use sqlx_lib::PostgresPool;
 // use state::State;
-use std::env;
+use std::{collections::HashMap, env};
 
 // use crate::image_cache::ImageCache;
 pub use error::{Error, Result};
@@ -46,7 +45,7 @@ async fn main() -> Result<()> {
 
     let mut data = client.data.write().await;
     data.insert::<PostgresPool>(PostgresPool::init().await?);
-    // data.insert::<State>(State::new());
+    data.insert::<VoiceStateCache>(HashMap::new());
     // data.insert::<ImageCache>(ImageCache::new());
     // data.insert::<GoodMorningLockedUsers>(Vec::new());
     // data.insert::<GoodNightLockedUsers>(Vec::new());

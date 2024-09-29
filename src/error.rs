@@ -30,9 +30,10 @@ pub enum Error {
     // PatreonAccountNotFound(String),
     // NotInGuild,
     // NotInteractionAuthor,
-    ReactionRole(reaction_roles::Error),
     Family(family::Error),
     GoldStar(gold_star::Error),
+    ReactionRole(reaction_roles::Error),
+    TempVoice(temp_voice::Error),
 
     // FamilyError(crate::modules::family::FamilyError),
     Dotenvy(dotenvy::Error),
@@ -58,6 +59,7 @@ impl ErrorResponse for Error {
             // Error::PatreonAccountNotFound(_) => String::from("Patreon account not found.\nIf you've recently joined, please use `/patreon_user login` to manually update the cache and link your Discord account."),
             // Error::NotInteractionAuthor => String::from("You are not the author of this interaction."),
             // Error::FamilyError(ref e) => e.as_response(),
+            Error::TempVoice(e) => e.to_response(),
             _ => String::new(),
         }
     }
@@ -86,6 +88,12 @@ impl From<gold_star::Error> for Error {
 impl From<reaction_roles::Error> for Error {
     fn from(e: reaction_roles::Error) -> Self {
         Error::ReactionRole(e)
+    }
+}
+
+impl From<temp_voice::Error> for Error {
+    fn from(e: temp_voice::Error) -> Self {
+        Error::TempVoice(e)
     }
 }
 
