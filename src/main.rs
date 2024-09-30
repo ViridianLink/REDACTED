@@ -21,7 +21,7 @@ mod sqlx_lib;
 use serenity::all::{GatewayIntents, UserId};
 use serenity::Client;
 use sqlx_lib::PostgresPool;
-use temp_voice::VoiceStateCache;
+use temp_voice::{VoiceChannelManager, VoiceStateCache};
 // use sqlx::postgres::PgPoolOptions;
 // use sqlx_lib::PostgresPool;
 // use state::State;
@@ -46,6 +46,7 @@ async fn main() -> Result<()> {
     let mut data = client.data.write().await;
     data.insert::<PostgresPool>(PostgresPool::init().await?);
     data.insert::<VoiceStateCache>(HashMap::new());
+    data.insert::<VoiceChannelManager>(HashMap::new());
     // data.insert::<ImageCache>(ImageCache::new());
     // data.insert::<GoodMorningLockedUsers>(Vec::new());
     // data.insert::<GoodNightLockedUsers>(Vec::new());
