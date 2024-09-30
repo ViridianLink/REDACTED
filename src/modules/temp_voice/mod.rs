@@ -19,10 +19,6 @@ impl SlashCommand<Error> for VoiceCommand {
 
         temp_voice::VoiceCommand::run(ctx, interaction).await?;
 
-        // interaction
-        // .edit_response(ctx, EditInteractionResponse::new().content("Success."))
-        // .await?;
-
         Ok(())
     }
 
