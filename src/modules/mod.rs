@@ -1,5 +1,6 @@
 pub mod family;
 pub mod gold_star;
+pub mod lfg;
 pub mod nsfw;
 pub mod reaction_roles;
 pub mod temp_voice;
