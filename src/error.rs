@@ -32,6 +32,7 @@ pub enum Error {
     // NotInteractionAuthor,
     Family(family::Error),
     GoldStar(gold_star::Error),
+    Lfg(lfg::Error),
     ReactionRole(reaction_roles::Error),
     TempVoice(temp_voice::Error),
 
@@ -53,9 +54,10 @@ pub enum Error {
 impl ErrorResponse for Error {
     fn to_response(&self) -> String {
         match self {
-            Error::ReactionRole(e) => e.to_response(),
             Error::Family(e) => e.to_response(),
             Error::GoldStar(e) => e.to_response(),
+            Error::Lfg(e) => e.to_response(),
+            Error::ReactionRole(e) => e.to_response(),
             // Error::PatreonAccountNotFound(_) => String::from("Patreon account not found.\nIf you've recently joined, please use `/patreon_user login` to manually update the cache and link your Discord account."),
             // Error::NotInteractionAuthor => String::from("You are not the author of this interaction."),
             // Error::FamilyError(ref e) => e.as_response(),
@@ -82,6 +84,12 @@ impl From<family::Error> for Error {
 impl From<gold_star::Error> for Error {
     fn from(e: gold_star::Error) -> Self {
         Error::GoldStar(e)
+    }
+}
+
+impl From<lfg::Error> for Error {
+    fn from(e: lfg::Error) -> Self {
+        Error::Lfg(e)
     }
 }
 
