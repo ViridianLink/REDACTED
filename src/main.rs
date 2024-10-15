@@ -15,6 +15,7 @@ mod sqlx_lib;
 // pub mod state;
 // mod utils;
 
+use lfg::LfgPostManager;
 // use guild_commands::college_kings::{
 //     goodmorning::GoodMorningLockedUsers, goodnight::GoodNightLockedUsers,
 // };
@@ -25,7 +26,8 @@ use temp_voice::{VoiceChannelManager, VoiceStateCache};
 // use sqlx::postgres::PgPoolOptions;
 // use sqlx_lib::PostgresPool;
 // use state::State;
-use std::{collections::HashMap, env};
+use std::collections::HashMap;
+use std::env;
 
 // use crate::image_cache::ImageCache;
 pub use error::{Error, Result};
@@ -45,6 +47,7 @@ async fn main() -> Result<()> {
 
     let mut data = client.data.write().await;
     data.insert::<PostgresPool>(PostgresPool::init().await?);
+    data.insert::<LfgPostManager>(HashMap::new());
     data.insert::<VoiceStateCache>(HashMap::new());
     data.insert::<VoiceChannelManager>(HashMap::new());
     // data.insert::<ImageCache>(ImageCache::new());
