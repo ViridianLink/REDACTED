@@ -10,8 +10,9 @@ use serenity::all::CreateCommand;
 pub fn global_register() -> Vec<CreateCommand> {
     [
         family::register(),
-        reaction_roles::register(),
         gold_star::register(),
+        lfg::register(),
+        reaction_roles::register(),
         temp_voice::register(),
     ]
     .concat()
