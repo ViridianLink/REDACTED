@@ -22,6 +22,18 @@ pub(super) async fn interaction_component(
         "marry_accept" => MarryComponent::accept(ctx, component).await,
         "marry_decline" => MarryComponent::decline(ctx, component).await,
         //endregion
+
+        // region LFG
+        "lfg_activity" => lfg::ActivityComponent::run(ctx, component)
+            .await
+            .map_err(Error::from),
+        "lfg_join" => lfg::PostComponents::join(ctx, component)
+            .await
+            .map_err(Error::from),
+        "lfg_leave" => lfg::PostComponents::leave(ctx, component)
+            .await
+            .map_err(Error::from),
+        // endregion
         _ => Err(Error::UnknownComponent(component.data.custom_id.clone())),
     };
 
