@@ -6,6 +6,7 @@ use crate::modules::family::slash_commands::{
     RelationshipCommand, SiblingsCommand, TreeCommand, UnblockCommand,
 };
 use crate::modules::gold_star::slash_commands::{GiveStarCommand, StarsCommand};
+use crate::modules::lfg::LfgCommand;
 use crate::modules::reaction_roles::{ReactionRoleCommand, ReactionRoleMessageCommand};
 use crate::modules::temp_voice::VoiceCommand;
 use crate::{Error, Result, OSCAR_SIX_ID};
@@ -30,6 +31,10 @@ pub(super) async fn interaction_command(ctx: &Context, command: &CommandInteract
         // region Gold Stars
         "give_star" => GiveStarCommand::run(ctx, command).await,
         "stars" => StarsCommand::run(ctx, command).await,
+        // endregion
+
+        // region LFG
+        "lfg" => LfgCommand::run(ctx, command).await,
         // endregion
 
         //region Reaction Roles
