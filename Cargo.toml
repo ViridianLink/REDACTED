@@ -32,6 +32,8 @@ tokio = { version = "*", default-features = false, features = [
 ] }
 futures = { version = "*", default-features = false }
 charming = { version = "*", default-features = false, features = ["ssr"] }
+chrono = { version = "*", default-features = false }
+
 # walkdir = "*"
 
 [dependencies.serenity]
