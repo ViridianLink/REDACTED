@@ -15,7 +15,6 @@ mod sqlx_lib;
 // pub mod state;
 // mod utils;
 
-use lfg::LfgPostManager;
 // use guild_commands::college_kings::{
 //     goodmorning::GoodMorningLockedUsers, goodnight::GoodNightLockedUsers,
 // };
@@ -47,12 +46,8 @@ async fn main() -> Result<()> {
 
     let mut data = client.data.write().await;
     data.insert::<PostgresPool>(PostgresPool::init().await?);
-    data.insert::<LfgPostManager>(HashMap::new());
     data.insert::<VoiceStateCache>(HashMap::new());
     data.insert::<VoiceChannelManager>(HashMap::new());
-    // data.insert::<ImageCache>(ImageCache::new());
-    // data.insert::<GoodMorningLockedUsers>(Vec::new());
-    // data.insert::<GoodNightLockedUsers>(Vec::new());
     drop(data);
 
     client.start().await?;
