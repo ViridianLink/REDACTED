@@ -3,8 +3,10 @@ CREATE TABLE lfg_posts (
     id BIGINT PRIMARY KEY NOT NULL,
     owner_id BIGINT NOT NULL,
     activity TEXT NOT NULL,
-    start_time TIMESTAMPTZ NOT NULL,
+    timestamp TIMESTAMP NOT NULL,
+    timezone TEXT NOT NULL,
     description TEXT NOT NULL,
     fireteam_size SMALLINT NOT NULL,
-    fireteam_ids BIGINT[] NOT NULL
+    fireteam BIGINT[] NOT NULL,
+    alternatives BIGINT[] NOT NULL
 )
