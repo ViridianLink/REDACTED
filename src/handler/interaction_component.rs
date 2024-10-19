@@ -1,4 +1,6 @@
-use serenity::all::{ComponentInteraction, CreateInteractionResponseFollowup};
+use serenity::all::{
+    ComponentInteraction, CreateInteractionResponse, CreateInteractionResponseMessage,
+};
 use serenity::all::{Context, Mentionable};
 use zayden_core::ErrorResponse;
 
@@ -30,33 +32,44 @@ pub(super) async fn interaction_component(
             .map_err(Error::from),
         "lfg_join" => LfgComponents::join(ctx, component).await,
         "lfg_leave" => LfgComponents::leave(ctx, component).await,
+        "lfg_alternative" => LfgComponents::alternative(ctx, component).await,
+        "lfg_settings" => LfgComponents::settings(ctx, component).await,
+
+        "lfg_edit" => LfgComponents::edit(ctx, component).await,
+        "lfg_copy" => LfgComponents::copy(ctx, component).await,
+        "lfg_kick" => LfgComponents::kick(ctx, component).await,
+        "lfg_kick_menu" => LfgComponents::kick_menu(ctx, component).await,
+        "lfg_delete" => LfgComponents::delete(ctx, component).await,
         // endregion
         _ => Err(Error::UnknownComponent(component.data.custom_id.clone())),
     };
 
     if let Err(e) = result {
         let msg = e.to_response();
-        if msg.is_empty() {
-            component
-                .create_followup(
-                    ctx,
-                    CreateInteractionResponseFollowup::new().content(format!(
-                        "An error occurred. Please contact {} if this issue persists.",
-                        OSCAR_SIX_ID.mention()
-                    )),
-                )
-                .await?;
-            return Err(e);
-        }
+        let is_error = msg.is_empty();
+
+        let content = match is_error {
+            true => format!(
+                "An error occurred. Please contact {} if this issue persists.",
+                OSCAR_SIX_ID.mention()
+            ),
+            false => msg,
+        };
+
         component
-            .create_followup(
+            .create_response(
                 ctx,
-                CreateInteractionResponseFollowup::new()
-                    .content(msg)
-                    .ephemeral(true),
+                CreateInteractionResponse::Message(
+                    CreateInteractionResponseMessage::new()
+                        .content(content)
+                        .ephemeral(true),
+                ),
             )
             .await?;
-    }
 
+        if is_error {
+            return Err(e);
+        }
+    }
     Ok(())
 }

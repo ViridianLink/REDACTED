@@ -21,3 +21,19 @@ impl LfgCreateModal {
         Ok(())
     }
 }
+
+pub struct LfgEditModal;
+
+impl LfgEditModal {
+    pub async fn run(ctx: &Context, interaction: &ModalInteraction) -> Result<()> {
+        let pool = PostgresPool::get(ctx).await;
+
+        lfg::LfgEditModal::run::<Postgres, LfgPostTable>(ctx, interaction, &pool).await?;
+
+        interaction
+            .create_response(ctx, CreateInteractionResponse::Acknowledge)
+            .await?;
+
+        Ok(())
+    }
+}

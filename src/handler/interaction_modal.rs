@@ -10,6 +10,7 @@ pub(super) async fn interaction_modal(ctx: &Context, modal: &ModalInteraction) -
     let result = match modal.data.custom_id.as_str() {
         // region LFG
         "lfg_create" => lfg::LfgCreateModal::run(ctx, modal).await,
+        "lfg_edit" => lfg::LfgEditModal::run(ctx, modal).await,
         // endregion
         _ => Err(Error::UnknownComponent(modal.data.custom_id.clone())),
     };

@@ -3,14 +3,15 @@ mod modal;
 mod slash_command;
 
 use async_trait::async_trait;
-use chrono::{DateTime, FixedOffset};
+use chrono::NaiveDateTime;
 use lfg::{LfgPostManager, LfgPostRow};
 use serenity::all::{CreateCommand, MessageId};
-use sqlx::{any::AnyQueryResult, Pool, Postgres};
+use sqlx::any::AnyQueryResult;
+use sqlx::{Pool, Postgres};
 use zayden_core::SlashCommand;
 
 pub use components::LfgComponents;
-pub use modal::LfgCreateModal;
+pub use modal::{LfgCreateModal, LfgEditModal};
 pub use slash_command::LfgCommand;
 
 pub fn register() -> Vec<CreateCommand> {
@@ -41,28 +42,48 @@ impl LfgPostManager<Postgres> for LfgPostTable {
         id: impl Into<i64> + Send,
         owner: impl Into<i64> + Send,
         activity: &str,
-        start_time: DateTime<FixedOffset>,
+        timestamp: NaiveDateTime,
+        timezone: &str,
         description: &str,
         fireteam_size: impl Into<i16> + Send,
-        fireteam_ids: &[i64],
+        fireteam: &[i64],
+        alternatives: &[i64],
     ) -> sqlx::Result<AnyQueryResult> {
         let result = sqlx::query!(
-            "INSERT INTO lfg_posts (id, owner_id, activity, start_time, description, fireteam_size, fireteam_ids)
-            VALUES ($7, $1, $2, $3, $4, $5, $6)
+            "INSERT INTO lfg_posts (id, owner_id, activity, timestamp, timezone, description, fireteam_size, fireteam, alternatives)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             ON CONFLICT (id)
             DO UPDATE SET owner_id = EXCLUDED.owner_id,
                           activity = EXCLUDED.activity,
-                          start_time = EXCLUDED.start_time,
+                          timestamp = EXCLUDED.timestamp,
+                          timezone = EXCLUDED.timezone,
                           description = EXCLUDED.description,
                           fireteam_size = EXCLUDED.fireteam_size,
-                          fireteam_ids = EXCLUDED.fireteam_ids;",
+                          fireteam = EXCLUDED.fireteam,
+                          alternatives = EXCLUDED.alternatives;",
+            id.into(),
             owner.into(),
             activity,
-            start_time,
+            timestamp,
+            timezone,
             description,
             fireteam_size.into(),
-            fireteam_ids,
-            id.into()
+            fireteam,
+            alternatives
+        )
+        .execute(pool)
+        .await?;
+
+        Ok(result.into())
+    }
+
+    async fn delete(
+        pool: &Pool<Postgres>,
+        id: impl Into<MessageId> + Send,
+    ) -> sqlx::Result<AnyQueryResult> {
+        let result = sqlx::query!(
+            "DELETE FROM lfg_posts WHERE id = $1",
+            id.into().get() as i64
         )
         .execute(pool)
         .await?;
