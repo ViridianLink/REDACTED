@@ -21,12 +21,9 @@ mod sqlx_lib;
 use serenity::all::{GatewayIntents, UserId};
 use serenity::Client;
 use sqlx_lib::PostgresPool;
-use temp_voice::{VoiceChannelManager, VoiceStateCache};
-// use sqlx::postgres::PgPoolOptions;
-// use sqlx_lib::PostgresPool;
-// use state::State;
 use std::collections::HashMap;
 use std::env;
+use temp_voice::{VoiceChannelManager, VoiceStateCache};
 
 // use crate::image_cache::ImageCache;
 pub use error::{Error, Result};
