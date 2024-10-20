@@ -23,7 +23,7 @@ use serenity::Client;
 use sqlx_lib::PostgresPool;
 use std::collections::HashMap;
 use std::env;
-use temp_voice::{VoiceChannelManager, VoiceStateCache};
+use temp_voice::{VoiceChannelMap, VoiceStateCache};
 
 // use crate::image_cache::ImageCache;
 pub use error::{Error, Result};
@@ -44,7 +44,7 @@ async fn main() -> Result<()> {
     let mut data = client.data.write().await;
     data.insert::<PostgresPool>(PostgresPool::init().await?);
     data.insert::<VoiceStateCache>(HashMap::new());
-    data.insert::<VoiceChannelManager>(HashMap::new());
+    data.insert::<VoiceChannelMap>(HashMap::new());
     drop(data);
 
     client.start().await?;
