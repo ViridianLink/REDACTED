@@ -2937,7 +2937,7 @@ checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
 [[package]]
 name = "temp-voice"
 version = "0.1.0"
-source = "git+https://github.com/zayden-bot/temp-voice.git?branch=master#cbf93650a91d337eec8e613e0ec772ae18173f5d"
+source = "git+https://github.com/zayden-bot/temp-voice.git?branch=master#4b6e4ca4fcd36144dc582636ce4b8b9836e3b03f"
 dependencies = [
  "async-trait",
  "serenity",
