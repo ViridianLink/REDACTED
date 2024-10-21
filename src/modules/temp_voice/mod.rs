@@ -2,8 +2,9 @@ pub mod events;
 
 use async_trait::async_trait;
 use serenity::all::{ChannelId, CommandInteraction, Context, CreateCommand};
-use sqlx::{any::AnyQueryResult, Pool, Postgres};
-use temp_voice::{PersistentVoiceChannelManager, TemporaryChannelData, VoiceChannelMap};
+use sqlx::{any::AnyQueryResult, PgPool, Postgres};
+use temp_voice::voice_channel_manager::VoiceChannelRow;
+use temp_voice::{VoiceChannelData, VoiceChannelManager};
 use zayden_core::SlashCommand;
 
 use crate::{sqlx_lib::PostgresPool, Error, Result};
@@ -21,12 +22,8 @@ impl SlashCommand<Error> for VoiceCommand {
 
         interaction.defer_ephemeral(ctx).await?;
 
-        temp_voice::VoiceCommand::run::<Postgres, VoiceChannelMap, VoiceChannelTable>(
-            ctx,
-            interaction,
-            &pool,
-        )
-        .await?;
+        temp_voice::VoiceCommand::run::<Postgres, VoiceChannelTable>(ctx, interaction, &pool)
+            .await?;
 
         Ok(())
     }
@@ -39,29 +36,54 @@ impl SlashCommand<Error> for VoiceCommand {
 struct VoiceChannelTable;
 
 #[async_trait]
-impl PersistentVoiceChannelManager<Postgres> for VoiceChannelTable {
-    async fn persist(
-        pool: &Pool<Postgres>,
-        channel_data: &TemporaryChannelData,
-    ) -> sqlx::Result<AnyQueryResult> {
-        let trusted_ids = channel_data
-            .trusted
-            .iter()
-            .map(|id| id.get() as i64)
-            .collect::<Vec<_>>();
-
-        let result = sqlx::query!("INSERT INTO voice_channels (id, owner_id, trusted_ids, password) VALUES ($1, $2, $3, $4) ON CONFLICT (id) DO UPDATE SET owner_id = $2, trusted_ids = $3, password = $4", channel_data.channel_id.get() as i64, channel_data.owner.get() as i64, &trusted_ids, channel_data.password).execute(pool).await?;
-
-        Ok(result.into())
-    }
-    async fn is_persistent(pool: &Pool<Postgres>, channel_id: ChannelId) -> sqlx::Result<bool> {
-        let result = sqlx::query_scalar!(
-            "SELECT EXISTS(SELECT 1 FROM voice_channels WHERE id = $1)",
-            channel_id.get() as i64
+impl VoiceChannelManager<Postgres> for VoiceChannelTable {
+    async fn get(pool: &PgPool, id: ChannelId) -> sqlx::Result<VoiceChannelData> {
+        let row = sqlx::query_as!(
+            VoiceChannelRow,
+            r#"SELECT * FROM voice_channels WHERE id = $1"#,
+            id.get() as i64
         )
         .fetch_one(pool)
         .await?;
 
-        Ok(result.unwrap_or(false))
+        Ok(row.into())
+    }
+
+    async fn save(
+        pool: &PgPool,
+        id: impl Into<i64> + Send,
+        owner_id: impl Into<i64> + Send,
+        trusted_ids: &[i64],
+        password: Option<&str>,
+        persistent: impl Into<bool> + Send,
+    ) -> sqlx::Result<AnyQueryResult> {
+        let result = sqlx::query!(
+            r#"
+            INSERT INTO voice_channels (id, owner_id, trusted_ids, password, persistent)
+            VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (id) DO UPDATE
+            SET owner_id = $2, trusted_ids = $3, password = $4, persistent = $5
+            "#,
+            id.into(),
+            owner_id.into(),
+            trusted_ids,
+            password,
+            persistent.into()
+        )
+        .execute(pool)
+        .await?;
+
+        Ok(result.into())
+    }
+
+    async fn delete(pool: &PgPool, id: ChannelId) -> sqlx::Result<AnyQueryResult> {
+        let result = sqlx::query!(
+            r#"DELETE FROM voice_channels WHERE id = $1"#,
+            id.get() as i64
+        )
+        .execute(pool)
+        .await?;
+
+        Ok(result.into())
     }
 }
