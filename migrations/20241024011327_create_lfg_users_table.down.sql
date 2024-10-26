@@ -1,2 +1,2 @@
 -- Add down migration script here
-DROP TABLE timezones;
+DROP TABLE lfg_users;
