@@ -4,13 +4,15 @@ mod slash_command;
 
 use async_trait::async_trait;
 use chrono::NaiveDateTime;
-use lfg::{LfgPostManager, LfgPostRow};
-use serenity::all::{CreateCommand, MessageId};
+use chrono_tz::Tz;
+use lfg::timezone_manager::LOCALE_TO_TIMEZONE;
+use lfg::{LfgPostManager, LfgPostRow, TimezoneManager};
+use serenity::all::{CreateCommand, MessageId, UserId};
 use sqlx::any::AnyQueryResult;
 use sqlx::{Pool, Postgres};
 use zayden_core::SlashCommand;
 
-pub use components::LfgComponents;
+pub use components::{ActivityComponents, LfgComponents};
 pub use modal::{LfgCreateModal, LfgEditModal};
 pub use slash_command::LfgCommand;
 
@@ -84,6 +86,48 @@ impl LfgPostManager<Postgres> for LfgPostTable {
         let result = sqlx::query!(
             "DELETE FROM lfg_posts WHERE id = $1",
             id.into().get() as i64
+        )
+        .execute(pool)
+        .await?;
+
+        Ok(result.into())
+    }
+}
+
+struct UsersTable;
+
+#[async_trait]
+impl TimezoneManager<Postgres> for UsersTable {
+    async fn get(
+        pool: &Pool<Postgres>,
+        id: impl Into<UserId> + Send,
+        local: &str,
+    ) -> sqlx::Result<Tz> {
+        let tz = sqlx::query!(
+            "SELECT timezone FROM lfg_users WHERE id = $1",
+            id.into().get() as i64
+        )
+        .fetch_optional(pool)
+        .await?;
+
+        match tz {
+            Some(tz) => Ok(tz.timezone.parse().unwrap_or(chrono_tz::UTC)),
+            None => Ok(LOCALE_TO_TIMEZONE
+                .get(local)
+                .unwrap_or(&chrono_tz::UTC)
+                .to_owned()),
+        }
+    }
+
+    async fn save(
+        pool: &Pool<Postgres>,
+        id: impl Into<UserId> + Send,
+        tz: Tz,
+    ) -> sqlx::Result<AnyQueryResult> {
+        let result = sqlx::query!(
+            "INSERT INTO lfg_users (id, timezone) VALUES ($1, $2) ON CONFLICT (id) DO UPDATE SET timezone = $2",
+            id.into().get() as i64,
+            tz.name()
         )
         .execute(pool)
         .await?;

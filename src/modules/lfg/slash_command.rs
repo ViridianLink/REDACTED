@@ -1,8 +1,11 @@
 use async_trait::async_trait;
 use serenity::all::{CommandInteraction, Context, CreateCommand};
+use sqlx::Postgres;
 use zayden_core::SlashCommand;
 
-use crate::{Error, Result};
+use crate::{sqlx_lib::PostgresPool, Error, Result};
+
+use super::UsersTable;
 
 pub struct LfgCommand;
 
@@ -11,7 +14,9 @@ impl SlashCommand<Error> for LfgCommand {
     async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
         interaction.defer_ephemeral(ctx).await?;
 
-        lfg::LfgCommand::run(ctx, interaction).await?;
+        let pool = PostgresPool::get(ctx).await;
+
+        lfg::LfgCommand::run::<Postgres, UsersTable>(ctx, interaction, &pool).await?;
 
         Ok(())
     }

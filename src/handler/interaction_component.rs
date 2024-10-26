@@ -5,7 +5,7 @@ use serenity::all::{Context, Mentionable};
 use zayden_core::ErrorResponse;
 
 use crate::modules::family::components::{AdoptComponent, MarryComponent};
-use crate::modules::lfg::LfgComponents;
+use crate::modules::lfg::{ActivityComponents, LfgComponents};
 use crate::{Error, Result, OSCAR_SIX_ID};
 
 pub(super) async fn interaction_component(
@@ -27,9 +27,7 @@ pub(super) async fn interaction_component(
         //endregion
 
         // region LFG
-        "lfg_activity" => lfg::ActivityComponent::run(ctx, component)
-            .await
-            .map_err(Error::from),
+        "lfg_activity" => ActivityComponents::activity(ctx, component).await,
         "lfg_join" => LfgComponents::join(ctx, component).await,
         "lfg_leave" => LfgComponents::leave(ctx, component).await,
         "lfg_alternative" => LfgComponents::alternative(ctx, component).await,
