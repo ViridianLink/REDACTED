@@ -11,13 +11,7 @@ lfg = { git = "https://github.com/zayden-bot/lfg.git", branch = "main" }
 reaction-roles = { git = "https://github.com/zayden-bot/reaction-roles.git", branch = "main" }
 temp-voice = { git = "https://github.com/zayden-bot/temp-voice.git", branch = "master" }
 async-trait = { version = "*", default-features = false }
-# chrono = "*"
 dotenvy = { version = "*", default-features = false }
-# lazy_static = "*"
-# rand = "*"
-# reqwest = { version = "*", features = ["json"] }
-# serde = "*"
-# serde_json = "1.0.117"
 sqlx = { version = "*", default-features = false, features = [
     "runtime-tokio",
     "tls-native-tls",
@@ -33,6 +27,7 @@ tokio = { version = "*", default-features = false, features = [
 futures = { version = "*", default-features = false }
 charming = { version = "*", default-features = false, features = ["ssr"] }
 chrono = { version = "*", default-features = false }
+chrono-tz = { version = "*", default-features = false }
 
 # walkdir = "*"
 
