@@ -1,3 +1,4 @@
+pub mod destiny2;
 pub mod family;
 pub mod gold_star;
 pub mod lfg;
@@ -9,6 +10,7 @@ use serenity::all::CreateCommand;
 
 pub fn global_register() -> Vec<CreateCommand> {
     [
+        destiny2::register(),
         family::register(),
         gold_star::register(),
         lfg::register(),

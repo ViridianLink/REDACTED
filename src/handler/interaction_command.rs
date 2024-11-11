@@ -1,6 +1,7 @@
 use serenity::all::{CommandInteraction, Context, EditInteractionResponse, Mentionable};
 use zayden_core::{ErrorResponse, SlashCommand};
 
+use crate::modules::destiny2::ShoppingList;
 use crate::modules::family::slash_commands::{
     AdoptCommand, BlockCommand, ChildrenCommand, MarryCommand, ParentsCommand, PartnersCommand,
     RelationshipCommand, SiblingsCommand, TreeCommand, UnblockCommand,
@@ -15,6 +16,9 @@ pub(super) async fn interaction_command(ctx: &Context, command: &CommandInteract
     println!("{} ran command: {}", command.user.name, command.data.name);
 
     let result = match command.data.name.as_str() {
+        // region Destiny 2
+        "shoppinglist" => ShoppingList::run(ctx, command).await,
+        // endregion
         //region Family
         "adopt" => AdoptCommand::run(ctx, command).await,
         "block" => BlockCommand::run(ctx, command).await,
@@ -44,7 +48,9 @@ pub(super) async fn interaction_command(ctx: &Context, command: &CommandInteract
         // region Temp Voice
         "voice" => VoiceCommand::run(ctx, command).await,
         // endregion
-        _ => Err(Error::UnknownCommand(command.data.name.clone())),
+        _ => {
+            return Err(Error::UnknownCommand(command.data.name.clone()));
+        }
     };
 
     if let Err(e) = result {
