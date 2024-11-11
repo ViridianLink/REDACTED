@@ -13,8 +13,8 @@ pub(super) async fn interaction_component(
     component: &ComponentInteraction,
 ) -> Result<()> {
     println!(
-        "{} ran component: {}",
-        component.user.name, component.data.custom_id
+        "{} ran component: {} - {}",
+        component.user.name, component.data.custom_id, component.message.id
     );
 
     let result = match component.data.custom_id.as_str() {
