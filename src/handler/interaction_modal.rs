@@ -1,24 +1,27 @@
 use serenity::all::{Context, CreateInteractionResponseFollowup, Mentionable, ModalInteraction};
 use zayden_core::ErrorResponse;
 
-use crate::modules::lfg;
+use crate::modules::destiny2::lfg;
 use crate::{Error, Result, OSCAR_SIX_ID};
 
-pub(super) async fn interaction_modal(ctx: &Context, modal: &ModalInteraction) -> Result<()> {
-    println!("{} ran modal: {}", modal.user.name, modal.data.custom_id);
+pub async fn interaction_modal(ctx: &Context, interaction: &ModalInteraction) -> Result<()> {
+    println!(
+        "{} ran modal: {}",
+        interaction.user.name, interaction.data.custom_id
+    );
 
-    let result = match modal.data.custom_id.as_str() {
+    let result = match interaction.data.custom_id.as_str() {
         // region LFG
-        "lfg_create" => lfg::LfgCreateModal::run(ctx, modal).await,
-        "lfg_edit" => lfg::LfgEditModal::run(ctx, modal).await,
+        "lfg_create" => lfg::LfgCreateModal::run(ctx, interaction).await,
+        "lfg_edit" => lfg::LfgEditModal::run(ctx, interaction).await,
         // endregion
-        _ => Err(Error::UnknownComponent(modal.data.custom_id.clone())),
+        _ => Err(Error::UnknownComponent(interaction.data.custom_id.clone())),
     };
 
     if let Err(e) = result {
         let msg = e.to_response();
         if msg.is_empty() {
-            modal
+            interaction
                 .create_followup(
                     ctx,
                     CreateInteractionResponseFollowup::new().content(format!(
@@ -29,7 +32,7 @@ pub(super) async fn interaction_modal(ctx: &Context, modal: &ModalInteraction) -
                 .await?;
             return Err(e);
         }
-        modal
+        interaction
             .create_followup(
                 ctx,
                 CreateInteractionResponseFollowup::new()

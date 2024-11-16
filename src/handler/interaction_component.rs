@@ -4,42 +4,41 @@ use serenity::all::{
 use serenity::all::{Context, Mentionable};
 use zayden_core::ErrorResponse;
 
+use crate::modules::destiny2::lfg::LfgComponents;
 use crate::modules::family::components::{AdoptComponent, MarryComponent};
-use crate::modules::lfg::{ActivityComponents, LfgComponents};
 use crate::{Error, Result, OSCAR_SIX_ID};
 
-pub(super) async fn interaction_component(
+pub async fn interaction_component(
     ctx: &Context,
-    component: &ComponentInteraction,
+    interaction: &ComponentInteraction,
 ) -> Result<()> {
     println!(
         "{} ran component: {} - {}",
-        component.user.name, component.data.custom_id, component.message.id
+        interaction.user.name, interaction.data.custom_id, interaction.message.id
     );
 
-    let result = match component.data.custom_id.as_str() {
+    let result = match interaction.data.custom_id.as_str() {
         //region Family
-        "adopt_accept" => AdoptComponent::accept(ctx, component).await,
-        "adopt_decline" => AdoptComponent::decline(ctx, component).await,
+        "adopt_accept" => AdoptComponent::accept(ctx, interaction).await,
+        "adopt_decline" => AdoptComponent::decline(ctx, interaction).await,
 
-        "marry_accept" => MarryComponent::accept(ctx, component).await,
-        "marry_decline" => MarryComponent::decline(ctx, component).await,
+        "marry_accept" => MarryComponent::accept(ctx, interaction).await,
+        "marry_decline" => MarryComponent::decline(ctx, interaction).await,
         //endregion
 
         // region LFG
-        "lfg_activity" => ActivityComponents::activity(ctx, component).await,
-        "lfg_join" => LfgComponents::join(ctx, component).await,
-        "lfg_leave" => LfgComponents::leave(ctx, component).await,
-        "lfg_alternative" => LfgComponents::alternative(ctx, component).await,
-        "lfg_settings" => LfgComponents::settings(ctx, component).await,
+        "lfg_join" => LfgComponents::join(ctx, interaction).await,
+        "lfg_leave" => LfgComponents::leave(ctx, interaction).await,
+        "lfg_alternative" => LfgComponents::alternative(ctx, interaction).await,
+        "lfg_settings" => LfgComponents::settings(ctx, interaction).await,
 
-        "lfg_edit" => LfgComponents::edit(ctx, component).await,
-        "lfg_copy" => LfgComponents::copy(ctx, component).await,
-        "lfg_kick" => LfgComponents::kick(ctx, component).await,
-        "lfg_kick_menu" => LfgComponents::kick_menu(ctx, component).await,
-        "lfg_delete" => LfgComponents::delete(ctx, component).await,
+        "lfg_edit" => LfgComponents::edit(ctx, interaction).await,
+        "lfg_copy" => LfgComponents::copy(ctx, interaction).await,
+        "lfg_kick" => LfgComponents::kick(ctx, interaction).await,
+        "lfg_kick_menu" => LfgComponents::kick_menu(ctx, interaction).await,
+        "lfg_delete" => LfgComponents::delete(ctx, interaction).await,
         // endregion
-        _ => Err(Error::UnknownComponent(component.data.custom_id.clone())),
+        _ => Err(Error::UnknownComponent(interaction.data.custom_id.clone())),
     };
 
     if let Err(e) = result {
@@ -54,7 +53,7 @@ pub(super) async fn interaction_component(
             false => msg,
         };
 
-        component
+        interaction
             .create_response(
                 ctx,
                 CreateInteractionResponse::Message(
