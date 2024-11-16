@@ -49,6 +49,8 @@ pub enum Error {
     // JoinError(tokio::task::JoinError),
     // Bunny(bunny_cdn_wrapper::Error),
     Charming(charming::EchartsError),
+    JoinError(tokio::task::JoinError),
+    Io(std::io::Error),
 }
 
 impl ErrorResponse for Error {
@@ -150,6 +152,18 @@ impl From<sqlx::Error> for Error {
 impl From<charming::EchartsError> for Error {
     fn from(e: charming::EchartsError) -> Self {
         Error::Charming(e)
+    }
+}
+
+impl From<tokio::task::JoinError> for Error {
+    fn from(e: tokio::task::JoinError) -> Self {
+        Error::JoinError(e)
+    }
+}
+
+impl From<std::io::Error> for Error {
+    fn from(e: std::io::Error) -> Self {
+        Error::Io(e)
     }
 }
 
