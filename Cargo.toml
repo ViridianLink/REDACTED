@@ -10,7 +10,8 @@ gold-star = { git = "https://github.com/zayden-bot/gold-star.git", branch = "mai
 lfg = { git = "https://github.com/zayden-bot/lfg.git", branch = "main" }
 reaction-roles = { git = "https://github.com/zayden-bot/reaction-roles.git", branch = "main" }
 temp-voice = { git = "https://github.com/zayden-bot/temp-voice.git", branch = "master" }
-bungie-api = { git = "https://github.com/ViridianLink/bungie-api", branch = "main" }
+bungie-api = { git = "https://github.com/ViridianLink/bungie-api.git", branch = "main" }
+google-sheets-api = { git = "https://github.com/ViridianLink/google-sheets-api.git", branch = "main" }
 async-trait = { version = "*", default-features = false }
 dotenvy = { version = "*", default-features = false }
 sqlx = { version = "*", default-features = false, features = [
@@ -29,11 +30,11 @@ futures = { version = "*", default-features = false }
 charming = { version = "*", default-features = false, features = ["ssr"] }
 chrono = { version = "*", default-features = false }
 chrono-tz = { version = "*", default-features = false }
+serde = { version = "*", default-features = false, features = ["derive"] }
+serde_json = { version = "*", default-features = false }
 
 [dependencies.serenity]
-git = "https://github.com/serenity-rs/serenity"
-branch = "current"
-# version = "*"
+version = "*"
 default-features = false
 features = [
     "builder",

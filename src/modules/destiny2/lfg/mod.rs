@@ -7,17 +7,21 @@ use chrono::NaiveDateTime;
 use chrono_tz::Tz;
 use lfg::timezone_manager::LOCALE_TO_TIMEZONE;
 use lfg::{LfgPostManager, LfgPostRow, TimezoneManager};
-use serenity::all::{CreateCommand, MessageId, UserId};
+use serenity::all::{Context, CreateCommand, MessageId, Ready, UserId};
 use sqlx::any::AnyQueryResult;
 use sqlx::{Pool, Postgres};
 use zayden_core::SlashCommand;
 
-pub use components::{ActivityComponents, LfgComponents};
+pub use components::LfgComponents;
 pub use modal::{LfgCreateModal, LfgEditModal};
 pub use slash_command::LfgCommand;
 
-pub fn register() -> Vec<CreateCommand> {
-    vec![LfgCommand::register()]
+use crate::Result;
+
+pub fn register(ctx: &Context, ready: &Ready) -> Result<Vec<CreateCommand>> {
+    let commands = vec![LfgCommand::register(ctx, ready)?];
+
+    Ok(commands)
 }
 
 struct LfgPostTable;

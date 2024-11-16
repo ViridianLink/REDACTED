@@ -1,64 +1,65 @@
 use serenity::all::{CommandInteraction, Context, EditInteractionResponse, Mentionable};
 use zayden_core::{ErrorResponse, SlashCommand};
 
-use crate::modules::destiny2::ShoppingList;
+use crate::modules::destiny2::dimwishlist::{D2Weapon, DimWishlist};
+use crate::modules::destiny2::lfg::LfgCommand;
 use crate::modules::family::slash_commands::{
     AdoptCommand, BlockCommand, ChildrenCommand, MarryCommand, ParentsCommand, PartnersCommand,
     RelationshipCommand, SiblingsCommand, TreeCommand, UnblockCommand,
 };
 use crate::modules::gold_star::slash_commands::{GiveStarCommand, StarsCommand};
-use crate::modules::lfg::LfgCommand;
 use crate::modules::reaction_roles::{ReactionRoleCommand, ReactionRoleMessageCommand};
 use crate::modules::temp_voice::VoiceCommand;
 use crate::{Error, Result, OSCAR_SIX_ID};
 
-pub(super) async fn interaction_command(ctx: &Context, command: &CommandInteraction) -> Result<()> {
-    println!("{} ran command: {}", command.user.name, command.data.name);
+pub async fn interaction_command(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
+    println!(
+        "{} ran command: {}",
+        interaction.user.name, interaction.data.name
+    );
 
-    let result = match command.data.name.as_str() {
+    let result = match interaction.data.name.as_str() {
         // region Destiny 2
-        "shoppinglist" => ShoppingList::run(ctx, command).await,
+        "d2weapon" => D2Weapon::run(ctx, interaction).await,
+        "dimwishlist" => DimWishlist::run(ctx, interaction).await,
+        "lfg" => LfgCommand::run(ctx, interaction).await,
         // endregion
         //region Family
-        "adopt" => AdoptCommand::run(ctx, command).await,
-        "block" => BlockCommand::run(ctx, command).await,
-        "children" => ChildrenCommand::run(ctx, command).await,
-        "marry" => MarryCommand::run(ctx, command).await,
-        "parents" => ParentsCommand::run(ctx, command).await,
-        "partners" => PartnersCommand::run(ctx, command).await,
-        "relationship" => RelationshipCommand::run(ctx, command).await,
-        "siblings" => SiblingsCommand::run(ctx, command).await,
-        "tree" => TreeCommand::run(ctx, command).await,
-        "unblock" => UnblockCommand::run(ctx, command).await,
+        "adopt" => AdoptCommand::run(ctx, interaction).await,
+        "block" => BlockCommand::run(ctx, interaction).await,
+        "children" => ChildrenCommand::run(ctx, interaction).await,
+        "marry" => MarryCommand::run(ctx, interaction).await,
+        "parents" => ParentsCommand::run(ctx, interaction).await,
+        "partners" => PartnersCommand::run(ctx, interaction).await,
+        "relationship" => RelationshipCommand::run(ctx, interaction).await,
+        "siblings" => SiblingsCommand::run(ctx, interaction).await,
+        "tree" => TreeCommand::run(ctx, interaction).await,
+        "unblock" => UnblockCommand::run(ctx, interaction).await,
         // endregion
 
         // region Gold Stars
-        "give_star" => GiveStarCommand::run(ctx, command).await,
-        "stars" => StarsCommand::run(ctx, command).await,
-        // endregion
-
-        // region LFG
-        "lfg" => LfgCommand::run(ctx, command).await,
+        "give_star" => GiveStarCommand::run(ctx, interaction).await,
+        "stars" => StarsCommand::run(ctx, interaction).await,
         // endregion
 
         //region Reaction Roles
-        "reaction_role" => ReactionRoleCommand::run(ctx, command).await,
-        "reaction_role_message" => ReactionRoleMessageCommand::run(ctx, command).await,
+        "reaction_role" => ReactionRoleCommand::run(ctx, interaction).await,
+        "reaction_role_message" => ReactionRoleMessageCommand::run(ctx, interaction).await,
         //endregion
         // region Temp Voice
-        "voice" => VoiceCommand::run(ctx, command).await,
+        "voice" => VoiceCommand::run(ctx, interaction).await,
         // endregion
         _ => {
-            return Err(Error::UnknownCommand(command.data.name.clone()));
+            return Err(Error::UnknownCommand(interaction.data.name.clone()));
         }
     };
 
     if let Err(e) = result {
-        let _ = command.defer(ctx).await;
+        let _ = interaction.defer(ctx).await;
 
         let msg = e.to_response();
         if msg.is_empty() {
-            command
+            interaction
                 .edit_response(
                     ctx,
                     EditInteractionResponse::new().content(format!(
@@ -70,7 +71,7 @@ pub(super) async fn interaction_command(ctx: &Context, command: &CommandInteract
             return Err(e);
         }
 
-        command
+        interaction
             .edit_response(ctx, EditInteractionResponse::new().content(msg))
             .await?;
     }

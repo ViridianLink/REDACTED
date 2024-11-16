@@ -4,19 +4,7 @@ use sqlx::Postgres;
 use crate::sqlx_lib::PostgresPool;
 use crate::Result;
 
-use super::{LfgPostTable, UsersTable};
-
-pub struct ActivityComponents;
-
-impl ActivityComponents {
-    pub async fn activity(ctx: &Context, component: &ComponentInteraction) -> Result<()> {
-        let pool = PostgresPool::get(ctx).await;
-
-        lfg::ActivityComponent::run::<Postgres, UsersTable>(ctx, component, &pool).await?;
-
-        Ok(())
-    }
-}
+use super::LfgPostTable;
 
 pub struct LfgComponents;
 

@@ -1,18 +1,16 @@
-use serenity::all::CreateCommand;
-use zayden_core::SlashCommand;
+use serenity::all::{Context, CreateCommand, Ready};
 
-mod column;
-pub mod manifests;
-mod perk;
-mod priority;
-mod role;
-mod shoppinglist;
-mod source;
-mod weapon_name;
-mod weapons;
-// pub use manifests::PerkManifest;
-pub use shoppinglist::ShoppingList;
+pub mod dimwishlist;
+pub mod lfg;
 
-pub fn register() -> Vec<CreateCommand> {
-    vec![ShoppingList::register()]
+use crate::Result;
+
+pub fn register(ctx: &Context, ready: &Ready) -> Result<Vec<CreateCommand>> {
+    let commands = [
+        dimwishlist::register(ctx, ready)?,
+        lfg::register(ctx, ready)?,
+    ]
+    .concat();
+
+    Ok(commands)
 }

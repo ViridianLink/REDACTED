@@ -46,9 +46,9 @@ dependencies = [
 
 [[package]]
 name = "allocator-api2"
-version = "0.2.19"
+version = "0.2.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "611cc2ae7d2e242c457e4be7f97036b8ad9ca152b499f53faf99b1ed8fc2553f"
+checksum = "45862d1c77f2228b9e10bc609d5bc203d86ebc9b87ad8d5d5167a6c9abf739d9"
 
 [[package]]
 name = "android-tzdata"
@@ -252,7 +252,7 @@ checksum = "79296716171880943b8470b5f8d03aa55eb2e645a4874bdbb28adb49162e012c"
 [[package]]
 name = "bungie-api"
 version = "0.1.0"
-source = "git+https://github.com/ViridianLink/bungie-api?branch=main#eca332b38b9b627c539a5723d8532ba49bf7103a"
+source = "git+https://github.com/ViridianLink/bungie-api.git?branch=main#61bf4880cc14e35509e2ac39b046269e22dfa2b9"
 dependencies = [
  "bitflags 2.6.0",
  "reqwest 0.12.9",
@@ -280,9 +280,9 @@ checksum = "9ac0150caa2ae65ca5bd83f25c7de183dea78d4d366469f148435e2acfbad0da"
 
 [[package]]
 name = "cc"
-version = "1.1.37"
+version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "40545c26d092346d8a8dab71ee48e7685a7a9cba76e634790c215b41a4a7b4cf"
+checksum = "fd9de9f2205d5ef3fd67e685b0df337994ddd4495e2a28d185500d0e1edfea47"
 dependencies = [
  "shlex",
 ]
@@ -406,9 +406,9 @@ checksum = "773648b94d0e5d620f64f280777445740e61fe701025087ec8b57f45c791888b"
 
 [[package]]
 name = "cpufeatures"
-version = "0.2.14"
+version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "608697df725056feaccfa42cffdaeeec3fccc4ffc38358ecd19b243e716a78e0"
+checksum = "0ca741a962e1b0bff6d724a1a0958b686406e853bb14061f218562e1896f95e6"
 dependencies = [
  "libc",
 ]
@@ -696,7 +696,7 @@ dependencies = [
 [[package]]
 name = "family"
 version = "0.1.0"
-source = "git+https://github.com/zayden-bot/family.git?branch=master#828ea0a0861b96cbcbecd65f57e37153edc06752"
+source = "git+https://github.com/zayden-bot/family.git?branch=master#cb7cc2621c977adb65a89786a08ee19120cc8448"
 dependencies = [
  "async-trait",
  "charming",
@@ -723,9 +723,9 @@ dependencies = [
 
 [[package]]
 name = "flate2"
-version = "1.0.34"
+version = "1.0.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1b589b4dc103969ad3cf85c950899926ec64300a1a46d76c03a6072957036f0"
+checksum = "c936bfdafb507ebbf50b8074c54fa31c5be9a1e7e5f467dd659697041407d07c"
 dependencies = [
  "crc32fast",
  "miniz_oxide 0.8.0",
@@ -973,13 +973,23 @@ checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 [[package]]
 name = "gold-star"
 version = "0.1.0"
-source = "git+https://github.com/zayden-bot/gold-star.git?branch=main#97e72b0ab8823ba0b967e93bef908e307bfc70c6"
+source = "git+https://github.com/zayden-bot/gold-star.git?branch=main#b9f1f4d94659dd5b5582250d80813ab040c81f24"
 dependencies = [
  "async-trait",
  "chrono",
  "serenity",
  "sqlx",
  "zayden-core",
+]
+
+[[package]]
+name = "google-sheets-api"
+version = "0.1.0"
+source = "git+https://github.com/ViridianLink/google-sheets-api.git?branch=main#e57162768238f2c76647726fa8fd42f0e46d67e1"
+dependencies = [
+ "reqwest 0.12.9",
+ "serde",
+ "url",
 ]
 
 [[package]]
@@ -1544,7 +1554,7 @@ checksum = "03087c2bad5e1034e8cace5926dec053fb3790248370865f5117a7d0213354c8"
 [[package]]
 name = "lfg"
 version = "0.1.0"
-source = "git+https://github.com/zayden-bot/lfg.git?branch=main#43a12675eb98c1f77fa0f5e18e04296dbe821f99"
+source = "git+https://github.com/zayden-bot/lfg.git?branch=main#630062aaca31e8d992d34f47276aaa3d1e5a3f74"
 dependencies = [
  "async-trait",
  "chrono",
@@ -1557,9 +1567,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.162"
+version = "0.2.164"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18d287de67fe55fd7e1581fe933d965a5a9477b38e949cfa9f8574ef01506398"
+checksum = "433bfe06b8c75da9b2e3fbea6e5329ff87748f0b144ef75306e674c3f6f7c13f"
 
 [[package]]
 name = "libloading"
@@ -2219,7 +2229,7 @@ checksum = "3b42e27ef78c35d3998403c1d26f3efd9e135d3e5121b0a4845cc5cc27547f4f"
 [[package]]
 name = "reaction-roles"
 version = "0.1.0"
-source = "git+https://github.com/zayden-bot/reaction-roles.git?branch=main#f8e0ec2d2ecdcef9bf5c558024c387f05b112b6a"
+source = "git+https://github.com/zayden-bot/reaction-roles.git?branch=main#24a7556dddb3e651c20036d2a5620c914e98d2da"
 dependencies = [
  "serenity",
  "sqlx",
@@ -2239,8 +2249,11 @@ dependencies = [
  "family",
  "futures",
  "gold-star",
+ "google-sheets-api",
  "lfg",
  "reaction-roles",
+ "serde",
+ "serde_json",
  "serenity",
  "sqlx",
  "temp-voice",
@@ -2271,9 +2284,9 @@ dependencies = [
 
 [[package]]
 name = "regex-automata"
-version = "0.4.8"
+version = "0.4.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "368758f23274712b504848e9d5a6f010445cc8b87a7cdb4d7cbee666c1288da3"
+checksum = "809e8dc61f6de73b46c85f4c96486310fe304c434cfa43669d7b40f711150908"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -2653,9 +2666,9 @@ checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 
 [[package]]
 name = "serde"
-version = "1.0.214"
+version = "1.0.215"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f55c3193aca71c12ad7890f1785d2b73e1b9f63a0bbc353c08ef26fe03fc56b5"
+checksum = "6513c1ad0b11a9376da888e3e0baa0077f1aed55c17f50e7b2397136129fb88f"
 dependencies = [
  "serde_derive",
 ]
@@ -2671,9 +2684,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.214"
+version = "1.0.215"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de523f781f095e28fa605cdce0f8307e451cc0fd14e2eb4cd2e98a355b147766"
+checksum = "ad1e866f866923f252f05c889987993144fb74e722403468a4ebd70c3cd756c0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2720,8 +2733,9 @@ dependencies = [
 
 [[package]]
 name = "serenity"
-version = "0.12.2"
-source = "git+https://github.com/serenity-rs/serenity?branch=current#77ac9857bc8260617bc117c8763719dd9938ada2"
+version = "0.12.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d72ec4323681bf9a3cabe40fd080abc2435859b502a1b5aa9bf693f125bfa76"
 dependencies = [
  "arrayvec",
  "async-trait",
@@ -3247,7 +3261,7 @@ checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
 [[package]]
 name = "temp-voice"
 version = "0.1.0"
-source = "git+https://github.com/zayden-bot/temp-voice.git?branch=master#a779194be6fcac81c3641b39093bcbd7f62bc85a"
+source = "git+https://github.com/zayden-bot/temp-voice.git?branch=master#2e2f99c6f6c0bf00c10399195abcc5e89548457e"
 dependencies = [
  "async-trait",
  "serenity",
@@ -4223,7 +4237,7 @@ dependencies = [
 [[package]]
 name = "zayden-core"
 version = "0.1.0"
-source = "git+https://github.com/zayden-bot/slash-command-core.git?branch=master#579d78fa2327144c4926d0ff5c088a1da289b013"
+source = "git+https://github.com/zayden-bot/slash-command-core.git?branch=master#e420c7fb40536ef8981062bd9196ecf20e8a39b4"
 dependencies = [
  "async-trait",
  "serenity",
