@@ -5,12 +5,12 @@ use charming::{
     Chart, ImageFormat, ImageRenderer,
 };
 use family::commands::{
-    Adopt, Block, Children, FamilyCommand, Marry, Parents, Partners, RelationshipCmd, Siblings,
-    Tree, Unblock,
+    Adopt, Block, Children, FamilyCommand, Marry, Parents, Partner, Relationship, Siblings, Tree,
+    Unblock,
 };
 use serenity::all::{
     ButtonStyle, CommandInteraction, Context, CreateAttachment, CreateButton, CreateCommand,
-    CreateEmbed, EditInteractionResponse, Mentionable,
+    CreateEmbed, EditInteractionResponse, Mentionable, Ready,
 };
 use sqlx::Postgres;
 use zayden_core::SlashCommand;
@@ -55,8 +55,8 @@ impl SlashCommand<Error> for AdoptCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        Adopt::register()
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        Ok(Adopt::register())
     }
 }
 
@@ -78,8 +78,8 @@ impl SlashCommand<Error> for BlockCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        Block::register()
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        Ok(Block::register())
     }
 }
 
@@ -104,8 +104,8 @@ impl SlashCommand<Error> for UnblockCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        Unblock::register()
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        Ok(Unblock::register())
     }
 }
 
@@ -154,8 +154,8 @@ impl SlashCommand<Error> for ChildrenCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        Children::register()
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        Ok(Children::register())
     }
 }
 
@@ -195,8 +195,8 @@ impl SlashCommand<Error> for MarryCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        Marry::register()
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        Ok(Marry::register())
     }
 }
 
@@ -245,8 +245,8 @@ impl SlashCommand<Error> for ParentsCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        Parents::register()
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        Ok(Parents::register())
     }
 }
 
@@ -260,7 +260,7 @@ impl SlashCommand<Error> for PartnersCommand {
         let pool = PostgresPool::get(ctx).await;
 
         let (user_id, partners) =
-            Partners::run::<Postgres, FamilyTable>(ctx, interaction, &pool).await?;
+            Partner::run::<Postgres, FamilyTable>(ctx, interaction, &pool).await?;
 
         let partners_plural = if partners.len() == 1 {
             "partner"
@@ -295,8 +295,8 @@ impl SlashCommand<Error> for PartnersCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        Partners::register()
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        Ok(Partner::register())
     }
 }
 
@@ -309,7 +309,7 @@ impl SlashCommand<Error> for RelationshipCommand {
 
         let pool = PostgresPool::get(ctx).await;
 
-        let res = RelationshipCmd::run::<Postgres, FamilyTable>(ctx, interaction, &pool).await?;
+        let res = Relationship::run::<Postgres, FamilyTable>(ctx, interaction, &pool).await?;
 
         let embed = if res.other_id == interaction.user.id {
             CreateEmbed::new().description(format!(
@@ -333,8 +333,8 @@ impl SlashCommand<Error> for RelationshipCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        RelationshipCmd::register()
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        Ok(Relationship::register())
     }
 }
 
@@ -383,8 +383,8 @@ impl SlashCommand<Error> for SiblingsCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        Siblings::register()
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        Ok(Siblings::register())
     }
 }
 
@@ -427,7 +427,7 @@ impl SlashCommand<Error> for TreeCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        Tree::register()
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        Ok(Tree::register())
     }
 }

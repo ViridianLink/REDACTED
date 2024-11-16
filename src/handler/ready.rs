@@ -22,7 +22,7 @@ impl Handler {
 
         let futures = ready.guilds.iter().map(|guild| {
             let mut commands = command_map.remove(&guild.id).unwrap_or_default();
-            commands.extend(modules::global_register());
+            commands.extend(modules::global_register(ctx, &ready).unwrap());
             guild.id.set_commands(ctx.http.clone(), commands)
         });
         future::try_join_all(futures).await?;

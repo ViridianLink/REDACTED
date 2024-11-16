@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use gold_star::commands::{GiveStar, GoldStarCommand, Stars};
 use serenity::all::{
     CommandInteraction, Context, CreateCommand, CreateEmbed, EditInteractionResponse, Mentionable,
+    Ready,
 };
 use sqlx::Postgres;
 use zayden_core::SlashCommand;
@@ -47,8 +48,8 @@ impl SlashCommand<Error> for GiveStarCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        GiveStar::register()
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        Ok(GiveStar::register())
     }
 }
 
@@ -79,7 +80,7 @@ impl SlashCommand<Error> for StarsCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        Stars::register()
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        Ok(Stars::register())
     }
 }

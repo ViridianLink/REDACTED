@@ -1,11 +1,11 @@
 use async_trait::async_trait;
 use serenity::all::{
     ChannelId, CommandInteraction, Context, CreateCommand, CreateEmbed, CreateInteractionResponse,
-    CreateInteractionResponseMessage, CreateMessage, Mentionable, Permissions, RoleId,
+    CreateInteractionResponseMessage, CreateMessage, Mentionable, Permissions, Ready, RoleId,
 };
 use zayden_core::SlashCommand;
 
-use crate::Error;
+use crate::{Error, Result};
 
 const RED_ROLE: RoleId = RoleId::new(923681972600045618);
 const PURPLE_ROLE: RoleId = RoleId::new(932007593738645584);
@@ -32,7 +32,7 @@ pub struct ReactionRoleMessageCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for ReactionRoleMessageCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), Error> {
+    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
         let _ = CHANNEL_ID
             .send_message(ctx, CreateMessage::new().embed(message()))
             .await;
@@ -51,9 +51,11 @@ impl SlashCommand<Error> for ReactionRoleMessageCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        CreateCommand::new("reaction_role_message")
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        let command = CreateCommand::new("reaction_role_message")
             .description("Edit the reaction role message.")
-            .default_member_permissions(Permissions::ADMINISTRATOR)
+            .default_member_permissions(Permissions::ADMINISTRATOR);
+
+        Ok(command)
     }
 }

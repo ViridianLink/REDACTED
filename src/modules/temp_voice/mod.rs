@@ -1,7 +1,7 @@
 pub mod events;
 
 use async_trait::async_trait;
-use serenity::all::{ChannelId, CommandInteraction, Context, CreateCommand};
+use serenity::all::{ChannelId, CommandInteraction, Context, CreateCommand, Ready};
 use sqlx::{any::AnyQueryResult, PgPool, Postgres};
 use temp_voice::voice_channel_manager::VoiceChannelRow;
 use temp_voice::{VoiceChannelData, VoiceChannelManager};
@@ -9,8 +9,10 @@ use zayden_core::SlashCommand;
 
 use crate::{sqlx_lib::PostgresPool, Error, Result};
 
-pub fn register() -> Vec<CreateCommand> {
-    vec![VoiceCommand::register()]
+pub fn register(ctx: &Context, ready: &Ready) -> Result<Vec<CreateCommand>> {
+    let commands = vec![VoiceCommand::register(ctx, ready)?];
+
+    Ok(commands)
 }
 
 pub struct VoiceCommand;
@@ -28,8 +30,8 @@ impl SlashCommand<Error> for VoiceCommand {
         Ok(())
     }
 
-    fn register() -> CreateCommand {
-        temp_voice::VoiceCommand::register()
+    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
+        Ok(temp_voice::VoiceCommand::register())
     }
 }
 

@@ -2,14 +2,21 @@ pub mod slash_commands;
 
 use async_trait::async_trait;
 use gold_star::manager::{GoldStarManager, GoldStarRow};
-use serenity::all::CreateCommand;
+use serenity::all::{Context, CreateCommand, Ready};
 use sqlx::{PgPool, Postgres};
 use zayden_core::SlashCommand;
 
 use slash_commands::{GiveStarCommand, StarsCommand};
 
-pub fn register() -> Vec<CreateCommand> {
-    vec![GiveStarCommand::register(), StarsCommand::register()]
+use crate::Result;
+
+pub fn register(ctx: &Context, ready: &Ready) -> Result<Vec<CreateCommand>> {
+    let commands = vec![
+        GiveStarCommand::register(ctx, ready)?,
+        StarsCommand::register(ctx, ready)?,
+    ];
+
+    Ok(commands)
 }
 
 struct GoldStarTable;

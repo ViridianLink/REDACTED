@@ -3,7 +3,7 @@ pub mod slash_commands;
 
 use async_trait::async_trait;
 use family::{FamilyManager, FamilyRow};
-use serenity::all::CreateCommand;
+use serenity::all::{Context, CreateCommand, Ready};
 use sqlx::{PgPool, Postgres};
 use std::collections::HashMap;
 use zayden_core::SlashCommand;
@@ -13,19 +13,23 @@ use slash_commands::{
     RelationshipCommand, SiblingsCommand, TreeCommand, UnblockCommand,
 };
 
-pub fn register() -> Vec<CreateCommand> {
-    vec![
-        AdoptCommand::register(),
-        BlockCommand::register(),
-        UnblockCommand::register(),
-        ChildrenCommand::register(),
-        MarryCommand::register(),
-        ParentsCommand::register(),
-        PartnersCommand::register(),
-        RelationshipCommand::register(),
-        SiblingsCommand::register(),
-        TreeCommand::register(),
-    ]
+use crate::Result;
+
+pub fn register(ctx: &Context, ready: &Ready) -> Result<Vec<CreateCommand>> {
+    let commands = vec![
+        AdoptCommand::register(ctx, ready)?,
+        BlockCommand::register(ctx, ready)?,
+        UnblockCommand::register(ctx, ready)?,
+        ChildrenCommand::register(ctx, ready)?,
+        MarryCommand::register(ctx, ready)?,
+        ParentsCommand::register(ctx, ready)?,
+        PartnersCommand::register(ctx, ready)?,
+        RelationshipCommand::register(ctx, ready)?,
+        SiblingsCommand::register(ctx, ready)?,
+        TreeCommand::register(ctx, ready)?,
+    ];
+
+    Ok(commands)
 }
 
 struct FamilyTable;
@@ -114,5 +118,9 @@ impl FamilyManager<Postgres> for FamilyTable {
         ).execute(pool).await?;
 
         Ok(())
+    }
+
+    async fn reset(pool: &PgPool) -> sqlx::Result<()> {
+        todo!()
     }
 }
