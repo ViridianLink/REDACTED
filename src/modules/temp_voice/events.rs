@@ -11,9 +11,10 @@ use super::VoiceChannelTable;
 pub async fn run(ctx: &Context, pool: &PgPool, new: &VoiceState) -> Result<()> {
     let old = VoiceStateCache::update(ctx, new.clone()).await?;
 
-    // Use tokio to run these concurrently
-    channel_creator::<Postgres, GuildTable, VoiceChannelTable>(ctx, pool, new).await?;
-    channel_deleter::<Postgres, GuildTable, VoiceChannelTable>(ctx, pool, old).await?;
+    tokio::try_join!(
+        channel_creator::<Postgres, GuildTable, VoiceChannelTable>(ctx, pool, new),
+        channel_deleter::<Postgres, GuildTable, VoiceChannelTable>(ctx, pool, old)
+    )?;
 
     Ok(())
 }
