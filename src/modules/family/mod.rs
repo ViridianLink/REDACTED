@@ -120,7 +120,7 @@ impl FamilyManager<Postgres> for FamilyTable {
         Ok(())
     }
 
-    async fn reset(pool: &PgPool) -> sqlx::Result<()> {
+    async fn reset(_pool: &PgPool) -> sqlx::Result<()> {
         todo!()
     }
 }

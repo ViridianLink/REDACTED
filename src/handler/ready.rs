@@ -25,18 +25,8 @@ impl Handler {
             commands.extend(modules::global_register(ctx, &ready).unwrap());
             guild.id.set_commands(ctx.http.clone(), commands)
         });
-        future::try_join_all(futures).await?;
-
-        // let ctx_clone = ctx.clone();
-        // tokio::spawn(async move { Sleep::on_ready(ctx_clone, ready).await });
-
-        // let ctx_clone = ctx.clone();
-        // tokio::spawn(async move { start_cron_jobs(ctx_clone).await });
+        future::try_join_all(futures).await.unwrap();
 
         Ok(())
     }
 }
-// #[async_trait]
-// pub trait OnReady {
-//     async fn on_ready(ctx: Context, ready: Ready) -> Result<()>;
-// }

@@ -6,7 +6,7 @@ use zayden_core::ErrorResponse;
 
 use crate::modules::destiny2::lfg::LfgComponents;
 use crate::modules::family::components::{AdoptComponent, MarryComponent};
-use crate::{Error, Result, OSCAR_SIX_ID};
+use crate::{Result, OSCAR_SIX_ID};
 
 pub async fn interaction_component(
     ctx: &Context,
@@ -38,7 +38,10 @@ pub async fn interaction_component(
         "lfg_kick_menu" => LfgComponents::kick_menu(ctx, interaction).await,
         "lfg_delete" => LfgComponents::delete(ctx, interaction).await,
         // endregion
-        _ => Err(Error::UnknownComponent(interaction.data.custom_id.clone())),
+        _ => {
+            println!("Unknown component: {}", interaction.data.custom_id);
+            return Ok(());
+        }
     };
 
     if let Err(e) = result {
@@ -62,7 +65,8 @@ pub async fn interaction_component(
                         .ephemeral(true),
                 ),
             )
-            .await?;
+            .await
+            .unwrap();
 
         if is_error {
             return Err(e);

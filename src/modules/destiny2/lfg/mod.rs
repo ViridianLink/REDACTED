@@ -6,10 +6,10 @@ use async_trait::async_trait;
 use chrono::NaiveDateTime;
 use chrono_tz::Tz;
 use lfg::timezone_manager::LOCALE_TO_TIMEZONE;
-use lfg::{LfgPostManager, LfgPostRow, TimezoneManager};
-use serenity::all::{Context, CreateCommand, MessageId, Ready, UserId};
+use lfg::{LfgGuildManager, LfgGuildRow, LfgPostManager, LfgPostRow, TimezoneManager};
+use serenity::all::{Context, CreateCommand, GuildId, MessageId, Ready, UserId};
 use sqlx::any::AnyQueryResult;
-use sqlx::{Pool, Postgres};
+use sqlx::{PgPool, Pool, Postgres};
 use zayden_core::SlashCommand;
 
 pub use components::LfgComponents;
@@ -22,6 +22,47 @@ pub fn register(ctx: &Context, ready: &Ready) -> Result<Vec<CreateCommand>> {
     let commands = vec![LfgCommand::register(ctx, ready)?];
 
     Ok(commands)
+}
+
+struct LfgGuildTable;
+
+#[async_trait]
+impl LfgGuildManager<Postgres> for LfgGuildTable {
+    async fn get(
+        pool: &PgPool,
+        id: impl Into<GuildId> + Send,
+    ) -> sqlx::Result<Option<LfgGuildRow>> {
+        let guild = sqlx::query_as!(
+            LfgGuildRow,
+            "SELECT * FROM lfg_guilds WHERE id = $1",
+            id.into().get() as i64
+        )
+        .fetch_optional(pool)
+        .await?;
+
+        Ok(guild)
+    }
+
+    async fn save(
+        pool: &PgPool,
+        id: impl Into<i64> + Send,
+        channel: impl Into<i64> + Send,
+        role: Option<impl Into<i64> + Send>,
+    ) -> sqlx::Result<AnyQueryResult> {
+        let result = sqlx::query!(
+            "INSERT INTO lfg_guilds (id, channel_id, role_id)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (id)
+            DO UPDATE SET channel_id = EXCLUDED.channel_id, role_id = EXCLUDED.role_id;",
+            id.into(),
+            channel.into(),
+            role.map(|r| r.into())
+        )
+        .execute(pool)
+        .await?;
+
+        Ok(result.into())
+    }
 }
 
 struct LfgPostTable;

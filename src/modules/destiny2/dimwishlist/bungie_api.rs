@@ -17,9 +17,9 @@ pub struct BungieApi;
 
 impl BungieApi {
     pub async fn update_dbs(pool: &PgPool) -> Result<()> {
-        let client = BungieClientBuilder::new(env::var("BUNGIE_API_KEY")?)
-            .build()
-            .unwrap();
+        let api_key = env::var("BUNGIE_API_KEY").unwrap();
+
+        let client = BungieClientBuilder::new(api_key).build().unwrap();
 
         let manifest = client.destiny_manifest().await.unwrap();
         let item_manifest = client
@@ -198,28 +198,36 @@ impl BungieApi {
         item_manifest: &DestinyInventoryItemManifest,
     ) -> Result<()> {
         let valid_perks = item_manifest
-        .values()
-        .filter(|item| match item {
+            .values()
+            .filter(|item| match item {
                 DestinyInventoryItemDefinition {
-                    item_sub_type:
-                        // DestinyItemSubType::Mask
-                        | DestinyItemSubType::Shader
-                        | DestinyItemSubType::Ornament,
+                    item_sub_type: DestinyItemSubType::Shader | DestinyItemSubType::Ornament,
                     ..
                 } => false,
                 DestinyInventoryItemDefinition {
-                    display_properties: DestinyDisplayPropertiesDefinition {
-                        name,
-                        ..
-                    },
+                    display_properties: DestinyDisplayPropertiesDefinition { name, .. },
                     item_type_display_name: Some(item_type_display_name),
-                    // "itemTypeDisplayName": "Weapon Mod",
                     item_type: DestinyItemType::Mod,
                     ..
-                } => !(name.is_empty() || item_type_display_name.is_empty() || item_type_display_name.starts_with("Ghost") || item_type_display_name.starts_with("Deprecated") || item_type_display_name == "Artifact Perk" || item_type_display_name == "Material" || item_type_display_name.ends_with("Emote") || item_type_display_name.ends_with("Mod") || item_type_display_name.ends_with("Tonic") || item_type_display_name.ends_with("Effect") || item_type_display_name.ends_with("Ability") || item_type_display_name.ends_with("Grenade") || item_type_display_name.ends_with("Aspect") || item_type_display_name.ends_with("Fragment")),
+                } => {
+                    !(name.is_empty()
+                        || item_type_display_name.is_empty()
+                        || item_type_display_name.starts_with("Ghost")
+                        || item_type_display_name.starts_with("Deprecated")
+                        || item_type_display_name == "Artifact Perk"
+                        || item_type_display_name == "Material"
+                        || item_type_display_name.ends_with("Emote")
+                        || item_type_display_name.ends_with("Mod")
+                        || item_type_display_name.ends_with("Tonic")
+                        || item_type_display_name.ends_with("Effect")
+                        || item_type_display_name.ends_with("Ability")
+                        || item_type_display_name.ends_with("Grenade")
+                        || item_type_display_name.ends_with("Aspect")
+                        || item_type_display_name.ends_with("Fragment"))
+                }
                 _ => false,
             })
-        .collect::<Vec<_>>();
+            .collect::<Vec<_>>();
 
         let mut tx = pool.begin().await.unwrap();
 

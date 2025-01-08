@@ -10,7 +10,7 @@ pub struct AdoptComponent;
 
 impl AdoptComponent {
     pub async fn accept(ctx: &Context, interaction: &ComponentInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+        interaction.defer(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -27,15 +27,16 @@ impl AdoptComponent {
                     ))
                     .components(Vec::new()),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
 
     pub async fn decline(ctx: &Context, interaction: &ComponentInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+        interaction.defer(ctx).await.unwrap();
 
-        adopt::decline(interaction).await?;
+        adopt::decline(interaction).await.unwrap();
 
         interaction
             .edit_response(
@@ -44,7 +45,8 @@ impl AdoptComponent {
                     .content(format!("Sorry, {} said no.", interaction.user.mention()))
                     .components(Vec::new()),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
@@ -54,7 +56,7 @@ pub struct MarryComponent;
 
 impl MarryComponent {
     pub async fn accept(ctx: &Context, interaction: &ComponentInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+        interaction.defer(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -71,13 +73,14 @@ impl MarryComponent {
                     ))
                     .components(Vec::new()),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
 
     pub async fn decline(ctx: &Context, interaction: &ComponentInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+        interaction.defer(ctx).await.unwrap();
 
         marry::decline(interaction).await?;
 
@@ -88,7 +91,8 @@ impl MarryComponent {
                     .content(format!("Sorry, {} said no.", interaction.user.mention()))
                     .components(Vec::new()),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }

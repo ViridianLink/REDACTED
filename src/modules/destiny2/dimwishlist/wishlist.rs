@@ -26,7 +26,7 @@ pub struct Wishlist;
 
 impl Wishlist {
     pub async fn update() -> Result<()> {
-        let api_key = env::var("GOOGLE_API_KEY")?;
+        let api_key = env::var("GOOGLE_API_KEY").unwrap();
 
         let client = SheetsClientBuilder::new(api_key).build().unwrap();
 
@@ -51,7 +51,7 @@ impl Wishlist {
             .collect();
 
         let json = serde_json::to_string(&weapons).unwrap();
-        std::fs::write("weapons.json", json)?;
+        std::fs::write("weapons.json", json).unwrap();
 
         Ok(())
     }
@@ -199,7 +199,7 @@ impl Wishlist {
             Ok(weapons) => weapons,
             Err(_) => {
                 Self::update().await?;
-                std::fs::read_to_string("weapons.json")?
+                std::fs::read_to_string("weapons.json").unwrap()
             }
         };
         let weapons: Vec<Weapon> = serde_json::from_str(&weapons).unwrap();
@@ -229,7 +229,8 @@ impl Wishlist {
                     .new_attachment(file)
                     .content(format!("PVE Wishlist ({}):", strict)),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }

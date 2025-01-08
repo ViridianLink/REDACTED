@@ -10,7 +10,7 @@ use family::commands::{
 };
 use serenity::all::{
     ButtonStyle, CommandInteraction, Context, CreateAttachment, CreateButton, CreateCommand,
-    CreateEmbed, EditInteractionResponse, Mentionable, Ready,
+    CreateEmbed, EditInteractionResponse, Mentionable, Ready, ResolvedOption,
 };
 use sqlx::Postgres;
 use zayden_core::SlashCommand;
@@ -23,8 +23,12 @@ pub struct AdoptCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for AdoptCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -50,7 +54,8 @@ impl SlashCommand<Error> for AdoptCommand {
                             .style(ButtonStyle::Danger),
                     ),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
@@ -64,8 +69,12 @@ pub struct BlockCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for BlockCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer_ephemeral(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer_ephemeral(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -73,7 +82,8 @@ impl SlashCommand<Error> for BlockCommand {
 
         interaction
             .edit_response(ctx, EditInteractionResponse::new().content("User blocked."))
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
@@ -87,8 +97,12 @@ pub struct UnblockCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for UnblockCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer_ephemeral(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer_ephemeral(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -99,7 +113,8 @@ impl SlashCommand<Error> for UnblockCommand {
                 ctx,
                 EditInteractionResponse::new().content("User unblocked."),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
@@ -113,8 +128,12 @@ pub struct ChildrenCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for ChildrenCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -149,7 +168,8 @@ impl SlashCommand<Error> for ChildrenCommand {
                 ctx,
                 EditInteractionResponse::new().embed(CreateEmbed::new().description(desc)),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
@@ -163,8 +183,12 @@ pub struct MarryCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for MarryCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -190,7 +214,8 @@ impl SlashCommand<Error> for MarryCommand {
                             .style(ButtonStyle::Danger),
                     ),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
@@ -204,8 +229,12 @@ pub struct ParentsCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for ParentsCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -240,7 +269,8 @@ impl SlashCommand<Error> for ParentsCommand {
                 ctx,
                 EditInteractionResponse::new().embed(CreateEmbed::new().description(desc)),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
@@ -254,8 +284,12 @@ pub struct PartnersCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for PartnersCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -290,7 +324,8 @@ impl SlashCommand<Error> for PartnersCommand {
                 ctx,
                 EditInteractionResponse::new().embed(CreateEmbed::new().description(desc)),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
@@ -304,8 +339,12 @@ pub struct RelationshipCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for RelationshipCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -328,7 +367,8 @@ impl SlashCommand<Error> for RelationshipCommand {
 
         interaction
             .edit_response(ctx, EditInteractionResponse::new().embed(embed))
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
@@ -342,8 +382,12 @@ pub struct SiblingsCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for SiblingsCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -378,7 +422,8 @@ impl SlashCommand<Error> for SiblingsCommand {
                 ctx,
                 EditInteractionResponse::new().embed(CreateEmbed::new().description(desc)),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
@@ -402,13 +447,17 @@ fn render_graph(data: GraphData) -> Result<Vec<u8>> {
             .data(data),
     );
     let mut renderer = ImageRenderer::new(1920, 1080);
-    Ok(renderer.render_format(ImageFormat::Png, &chart)?)
+    Ok(renderer.render_format(ImageFormat::Png, &chart).unwrap())
 }
 
 #[async_trait]
 impl SlashCommand<Error> for TreeCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -422,7 +471,8 @@ impl SlashCommand<Error> for TreeCommand {
                 EditInteractionResponse::new()
                     .new_attachment(CreateAttachment::bytes(graph_data, "graph.png")),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }

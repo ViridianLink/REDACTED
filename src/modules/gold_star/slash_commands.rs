@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use gold_star::commands::{GiveStar, GoldStarCommand, Stars};
 use serenity::all::{
     CommandInteraction, Context, CreateCommand, CreateEmbed, EditInteractionResponse, Mentionable,
-    Ready,
+    Ready, ResolvedOption,
 };
 use sqlx::Postgres;
 use zayden_core::SlashCommand;
@@ -16,8 +16,12 @@ pub struct GiveStarCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for GiveStarCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -43,7 +47,8 @@ impl SlashCommand<Error> for GiveStarCommand {
                         .description(description),
                 ),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
@@ -57,8 +62,12 @@ pub struct StarsCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for StarsCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -75,7 +84,8 @@ impl SlashCommand<Error> for StarsCommand {
                         .field("Received Stars", row.received_stars.to_string(), true),
                 ),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }

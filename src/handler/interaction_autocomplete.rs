@@ -3,7 +3,7 @@ use zayden_core::{Autocomplete, ErrorResponse};
 
 use crate::modules::destiny2::dimwishlist::D2Weapon;
 use crate::modules::destiny2::lfg::LfgCommand;
-use crate::{Error, Result, OSCAR_SIX_ID};
+use crate::{Result, OSCAR_SIX_ID};
 
 pub async fn interaction_autocomplete(
     ctx: &Context,
@@ -15,7 +15,8 @@ pub async fn interaction_autocomplete(
         "d2weapon" => D2Weapon::autocomplete(ctx, interaction).await,
         // endregion
         _ => {
-            return Err(Error::UnknownCommand(interaction.data.name.clone()));
+            println!("Unknown command: {}", interaction.data.name);
+            return Ok(());
         }
     };
 
@@ -32,13 +33,15 @@ pub async fn interaction_autocomplete(
                         OSCAR_SIX_ID.mention()
                     )),
                 )
-                .await?;
+                .await
+                .unwrap();
             return Err(e);
         }
 
         interaction
             .edit_response(ctx, EditInteractionResponse::new().content(msg))
-            .await?;
+            .await
+            .unwrap();
     }
 
     Ok(())

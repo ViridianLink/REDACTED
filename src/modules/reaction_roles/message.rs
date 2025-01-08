@@ -1,7 +1,8 @@
 use async_trait::async_trait;
 use serenity::all::{
     ChannelId, CommandInteraction, Context, CreateCommand, CreateEmbed, CreateInteractionResponse,
-    CreateInteractionResponseMessage, CreateMessage, Mentionable, Permissions, Ready, RoleId,
+    CreateInteractionResponseMessage, CreateMessage, Mentionable, Permissions, Ready,
+    ResolvedOption, RoleId,
 };
 use zayden_core::SlashCommand;
 
@@ -32,7 +33,11 @@ pub struct ReactionRoleMessageCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for ReactionRoleMessageCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
         let _ = CHANNEL_ID
             .send_message(ctx, CreateMessage::new().embed(message()))
             .await;
@@ -46,7 +51,8 @@ impl SlashCommand<Error> for ReactionRoleMessageCommand {
                         .content("Message updated."),
                 ),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }

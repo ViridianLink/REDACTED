@@ -2,7 +2,7 @@ use serenity::all::{Context, CreateInteractionResponseFollowup, Mentionable, Mod
 use zayden_core::ErrorResponse;
 
 use crate::modules::destiny2::lfg;
-use crate::{Error, Result, OSCAR_SIX_ID};
+use crate::{Result, OSCAR_SIX_ID};
 
 pub async fn interaction_modal(ctx: &Context, interaction: &ModalInteraction) -> Result<()> {
     println!(
@@ -15,7 +15,10 @@ pub async fn interaction_modal(ctx: &Context, interaction: &ModalInteraction) ->
         "lfg_create" => lfg::LfgCreateModal::run(ctx, interaction).await,
         "lfg_edit" => lfg::LfgEditModal::run(ctx, interaction).await,
         // endregion
-        _ => Err(Error::UnknownComponent(interaction.data.custom_id.clone())),
+        _ => {
+            println!("Unknown modal: {}", interaction.data.custom_id);
+            return Ok(());
+        }
     };
 
     if let Err(e) = result {
@@ -29,7 +32,8 @@ pub async fn interaction_modal(ctx: &Context, interaction: &ModalInteraction) ->
                         OSCAR_SIX_ID.mention()
                     )),
                 )
-                .await?;
+                .await
+                .unwrap();
             return Err(e);
         }
         interaction
@@ -39,7 +43,8 @@ pub async fn interaction_modal(ctx: &Context, interaction: &ModalInteraction) ->
                     .content(msg)
                     .ephemeral(true),
             )
-            .await?;
+            .await
+            .unwrap();
     }
 
     Ok(())

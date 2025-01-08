@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use serenity::all::{
     AutocompleteChoice, CommandInteraction, CommandOptionType, Context, CreateAutocompleteResponse,
     CreateCommand, CreateCommandOption, CreateInteractionResponse, EditInteractionResponse, Ready,
-    ResolvedValue,
+    ResolvedOption, ResolvedValue,
 };
 use weapon::Weapon;
 use wishlist::Wishlist;
@@ -27,8 +27,12 @@ pub struct DimWishlist;
 
 #[async_trait]
 impl SlashCommand<Error> for DimWishlist {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer_ephemeral(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer_ephemeral(ctx).await.unwrap();
 
         let options = interaction.data.options();
         let options = parse_options(&options);
@@ -62,8 +66,12 @@ pub struct D2Weapon;
 
 #[async_trait]
 impl SlashCommand<Error> for D2Weapon {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer_ephemeral(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer_ephemeral(ctx).await.unwrap();
 
         let options = interaction.data.options();
         let options = parse_options(&options);
@@ -77,7 +85,7 @@ impl SlashCommand<Error> for D2Weapon {
             Ok(weapons) => weapons,
             Err(_) => {
                 Wishlist::update().await?;
-                std::fs::read_to_string("weapons.json")?
+                std::fs::read_to_string("weapons.json").unwrap()
             }
         };
         let weapons: Vec<Weapon> = serde_json::from_str(&weapons).unwrap();
@@ -89,7 +97,8 @@ impl SlashCommand<Error> for D2Weapon {
 
         interaction
             .edit_response(ctx, EditInteractionResponse::new().embed(weapon.into()))
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }
@@ -120,7 +129,7 @@ impl Autocomplete<Error> for D2Weapon {
             Ok(weapons) => weapons,
             Err(_) => {
                 Wishlist::update().await?;
-                std::fs::read_to_string("weapons.json")?
+                std::fs::read_to_string("weapons.json").unwrap()
             }
         };
         let weapons: Vec<Weapon> = serde_json::from_str(&weapons).unwrap();
@@ -138,7 +147,8 @@ impl Autocomplete<Error> for D2Weapon {
                     CreateAutocompleteResponse::new().set_choices(weapons),
                 ),
             )
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }

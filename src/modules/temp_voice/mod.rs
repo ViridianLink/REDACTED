@@ -1,38 +1,21 @@
 pub mod events;
+pub mod slash_command;
 
 use async_trait::async_trait;
-use serenity::all::{ChannelId, CommandInteraction, Context, CreateCommand, Ready};
+use serenity::all::{ChannelId, Context, CreateCommand, GuildId, Ready};
+use slash_command::VoiceCommand;
 use sqlx::{any::AnyQueryResult, PgPool, Postgres};
 use temp_voice::voice_channel_manager::VoiceChannelRow;
-use temp_voice::{VoiceChannelData, VoiceChannelManager};
+use temp_voice::{TempVoiceGuildManager, TempVoiceRow, VoiceChannelData, VoiceChannelManager};
 use zayden_core::SlashCommand;
 
-use crate::{sqlx_lib::PostgresPool, Error, Result};
+use crate::sqlx_lib::GuildTable;
+use crate::Result;
 
 pub fn register(ctx: &Context, ready: &Ready) -> Result<Vec<CreateCommand>> {
     let commands = vec![VoiceCommand::register(ctx, ready)?];
 
     Ok(commands)
-}
-
-pub struct VoiceCommand;
-
-#[async_trait]
-impl SlashCommand<Error> for VoiceCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        let pool = PostgresPool::get(ctx).await;
-
-        interaction.defer_ephemeral(ctx).await?;
-
-        temp_voice::VoiceCommand::run::<Postgres, VoiceChannelTable>(ctx, interaction, &pool)
-            .await?;
-
-        Ok(())
-    }
-
-    fn register(_ctx: &Context, _ready: &Ready) -> Result<CreateCommand> {
-        Ok(temp_voice::VoiceCommand::register())
-    }
 }
 
 struct VoiceChannelTable;
@@ -87,5 +70,73 @@ impl VoiceChannelManager<Postgres> for VoiceChannelTable {
         .await?;
 
         Ok(result.into())
+    }
+}
+
+#[async_trait]
+impl TempVoiceGuildManager<Postgres> for GuildTable {
+    async fn save(
+        pool: &PgPool,
+        id: GuildId,
+        category: ChannelId,
+        creator_channel: ChannelId,
+    ) -> sqlx::Result<AnyQueryResult> {
+        let result = sqlx::query!(
+            r#"
+            INSERT INTO guilds (id, temp_voice_category, temp_voice_creator_channel)
+            VALUES ($1, $2, $3)
+            ON CONFLICT (id) DO UPDATE
+            SET temp_voice_category = $2, temp_voice_creator_channel = $3
+            "#,
+            id.get() as i64,
+            category.get() as i64,
+            creator_channel.get() as i64
+        )
+        .execute(pool)
+        .await?;
+
+        Ok(result.into())
+    }
+
+    async fn get(pool: &PgPool, id: GuildId) -> sqlx::Result<TempVoiceRow> {
+        let row = sqlx::query_as!(
+            TempVoiceRow,
+            r#"SELECT id, temp_voice_category, temp_voice_creator_channel FROM guilds WHERE id = $1"#,
+            id.get() as i64
+        )
+        .fetch_one(pool)
+        .await?;
+
+        Ok(row)
+    }
+
+    async fn get_category(pool: &PgPool, id: GuildId) -> sqlx::Result<ChannelId> {
+        let row = sqlx::query!(
+            r#"SELECT temp_voice_category FROM guilds WHERE id = $1"#,
+            id.get() as i64
+        )
+        .fetch_one(pool)
+        .await?;
+
+        let category = row
+            .temp_voice_category
+            .expect("Category ID is required when saving") as u64;
+
+        Ok(ChannelId::from(category))
+    }
+
+    async fn get_creator_channel(pool: &PgPool, id: GuildId) -> sqlx::Result<ChannelId> {
+        let row = sqlx::query!(
+            r#"SELECT temp_voice_creator_channel FROM guilds WHERE id = $1"#,
+            id.get() as i64
+        )
+        .fetch_one(pool)
+        .await?;
+
+        let channel_id = row
+            .temp_voice_creator_channel
+            .expect("Channel ID is required when saving") as u64;
+
+        Ok(ChannelId::from(channel_id))
     }
 }

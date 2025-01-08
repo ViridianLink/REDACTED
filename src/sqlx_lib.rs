@@ -9,11 +9,14 @@ pub struct PostgresPool;
 
 impl PostgresPool {
     pub async fn init() -> Result<PgPool> {
+        let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
+
         let pool = PgPoolOptions::new()
             .max_connections(10)
-            .min_connections(3)
-            .connect(&env::var("DATABASE_URL")?)
-            .await?;
+            .min_connections(1)
+            .connect(&db_url)
+            .await
+            .unwrap();
 
         Ok(pool)
     }
@@ -29,3 +32,5 @@ impl PostgresPool {
 impl TypeMapKey for PostgresPool {
     type Value = PgPool;
 }
+
+pub struct GuildTable;

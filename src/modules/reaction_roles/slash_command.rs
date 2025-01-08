@@ -1,6 +1,7 @@
 use async_trait::async_trait;
 use serenity::all::{
     CommandInteraction, Context, CreateCommand, EditInteractionResponse, Permissions, Ready,
+    ResolvedOption,
 };
 use sqlx::Postgres;
 use zayden_core::SlashCommand;
@@ -14,8 +15,12 @@ pub struct ReactionRoleCommand;
 
 #[async_trait]
 impl SlashCommand<Error> for ReactionRoleCommand {
-    async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        interaction.defer_ephemeral(ctx).await?;
+    async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        _options: Vec<ResolvedOption<'_>>,
+    ) -> Result<()> {
+        interaction.defer_ephemeral(ctx).await.unwrap();
 
         let pool = PostgresPool::get(ctx).await;
 
@@ -28,7 +33,8 @@ impl SlashCommand<Error> for ReactionRoleCommand {
 
         interaction
             .edit_response(ctx, EditInteractionResponse::new().content("Success."))
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }

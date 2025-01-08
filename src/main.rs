@@ -6,6 +6,7 @@ pub mod modules;
 mod sqlx_lib;
 
 use serenity::all::{GatewayIntents, UserId};
+use serenity::prelude::TypeMap;
 use serenity::Client;
 use sqlx_lib::PostgresPool;
 use std::collections::HashMap;
@@ -18,22 +19,23 @@ pub const OSCAR_SIX_ID: UserId = UserId::new(211486447369322506);
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    dotenvy::dotenv()?;
+    dotenvy::dotenv().unwrap();
 
     let pool = PostgresPool::init().await?;
 
-    let token = &env::var("DISCORD_TOKEN")?;
+    let mut type_map = TypeMap::new();
+    type_map.insert::<PostgresPool>(pool);
+    type_map.insert::<VoiceStateCache>(HashMap::new());
+
+    let token = &env::var("DISCORD_TOKEN").unwrap();
 
     let mut client = Client::builder(token, GatewayIntents::all())
+        .type_map(type_map)
         .raw_event_handler(handler::Handler)
-        .await?;
+        .await
+        .unwrap();
 
-    let mut data = client.data.write().await;
-    data.insert::<PostgresPool>(pool);
-    data.insert::<VoiceStateCache>(HashMap::new());
-    drop(data);
-
-    client.start().await?;
+    client.start().await.unwrap();
 
     Ok(())
 }

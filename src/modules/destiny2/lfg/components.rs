@@ -80,7 +80,8 @@ impl LfgComponents {
 
         component
             .create_response(ctx, CreateInteractionResponse::Acknowledge)
-            .await?;
+            .await
+            .unwrap();
 
         Ok(())
     }

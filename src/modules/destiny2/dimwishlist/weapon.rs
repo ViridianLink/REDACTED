@@ -98,7 +98,8 @@ impl Weapon {
             name
         )
         .fetch_all(pool)
-        .await?;
+        .await
+        .unwrap();
 
         if weapons.is_empty() {
             panic!("No weapon found for {}", name);
