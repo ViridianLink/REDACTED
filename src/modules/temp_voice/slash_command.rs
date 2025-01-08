@@ -19,8 +19,6 @@ impl SlashCommand<Error> for VoiceCommand {
     ) -> Result<()> {
         let pool = PostgresPool::get(ctx).await;
 
-        interaction.defer_ephemeral(ctx).await.unwrap();
-
         temp_voice::VoiceCommand::run::<Postgres, GuildTable, VoiceChannelTable>(
             ctx,
             interaction,
