@@ -1,3 +1,5 @@
+use std::fs;
+
 use async_trait::async_trait;
 use serenity::all::{
     AutocompleteChoice, CommandInteraction, CommandOptionType, Context, CreateAutocompleteResponse,
@@ -71,7 +73,7 @@ impl SlashCommand<Error> for D2Weapon {
         interaction: &CommandInteraction,
         _options: Vec<ResolvedOption<'_>>,
     ) -> Result<()> {
-        interaction.defer_ephemeral(ctx).await.unwrap();
+        interaction.defer(ctx).await.unwrap();
 
         let options = interaction.data.options();
         let options = parse_options(&options);
@@ -81,14 +83,13 @@ impl SlashCommand<Error> for D2Weapon {
             _ => unreachable!("Name is required"),
         };
 
-        let weapons = match std::fs::read_to_string("weapons.json") {
-            Ok(weapons) => weapons,
-            Err(_) => {
-                Wishlist::update().await?;
-                std::fs::read_to_string("weapons.json").unwrap()
-            }
+        let weapons: Vec<Weapon> = if let Ok(w) = fs::read_to_string("weapons.json") {
+            serde_json::from_str(&w).unwrap()
+        } else {
+            Wishlist::update().await?;
+            let w = fs::read_to_string("weapons.json").unwrap();
+            serde_json::from_str(&w).unwrap()
         };
-        let weapons: Vec<Weapon> = serde_json::from_str(&weapons).unwrap();
 
         let weapon = weapons
             .iter()
