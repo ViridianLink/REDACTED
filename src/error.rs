@@ -4,7 +4,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug)]
 pub enum Error {
-    Family(family::Error),
     GoldStar(gold_star::Error),
     Lfg(lfg::Error),
     ReactionRole(reaction_roles::Error),
@@ -12,9 +11,8 @@ pub enum Error {
 }
 
 impl ErrorResponse for Error {
-    fn to_response(&self) -> String {
+    fn to_response(&self) -> &str {
         match self {
-            Error::Family(e) => e.to_response(),
             Error::GoldStar(e) => e.to_response(),
             Error::Lfg(e) => e.to_response(),
             Error::ReactionRole(e) => e.to_response(),
@@ -30,12 +28,6 @@ impl std::fmt::Display for Error {
 }
 
 impl std::error::Error for Error {}
-
-impl From<family::Error> for Error {
-    fn from(e: family::Error) -> Self {
-        Error::Family(e)
-    }
-}
 
 impl From<gold_star::Error> for Error {
     fn from(e: gold_star::Error) -> Self {

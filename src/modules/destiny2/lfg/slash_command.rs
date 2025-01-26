@@ -1,27 +1,28 @@
 use async_trait::async_trait;
-use serenity::all::{CommandInteraction, Context, CreateCommand, Ready, ResolvedOption};
-use sqlx::Postgres;
+use serenity::all::{
+    AutocompleteOption, CommandInteraction, Context, CreateCommand, Ready, ResolvedOption,
+};
+use sqlx::{PgPool, Postgres};
 use zayden_core::{Autocomplete, SlashCommand};
 
-use crate::{sqlx_lib::PostgresPool, Error, Result};
+use crate::{Error, Result};
 
 use super::{LfgGuildTable, LfgPostTable, UsersTable};
 
 pub struct LfgCommand;
 
 #[async_trait]
-impl SlashCommand<Error> for LfgCommand {
+impl SlashCommand<Error, Postgres> for LfgCommand {
     async fn run(
         ctx: &Context,
         interaction: &CommandInteraction,
         _options: Vec<ResolvedOption<'_>>,
+        pool: &PgPool,
     ) -> Result<()> {
-        let pool = PostgresPool::get(ctx).await;
-
         lfg::LfgCommand::run::<Postgres, LfgGuildTable, LfgPostTable, UsersTable>(
             ctx,
             interaction,
-            &pool,
+            pool,
         )
         .await?;
 
@@ -35,8 +36,12 @@ impl SlashCommand<Error> for LfgCommand {
 
 #[async_trait]
 impl Autocomplete<Error> for LfgCommand {
-    async fn autocomplete(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        lfg::LfgCommand::autocomplete(ctx, interaction).await?;
+    async fn autocomplete(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        option: AutocompleteOption<'_>,
+    ) -> Result<()> {
+        lfg::LfgCommand::autocomplete(ctx, interaction, option).await?;
 
         Ok(())
     }

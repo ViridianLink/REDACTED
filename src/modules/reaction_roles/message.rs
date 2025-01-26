@@ -4,6 +4,7 @@ use serenity::all::{
     CreateInteractionResponseMessage, CreateMessage, Mentionable, Permissions, Ready,
     ResolvedOption, RoleId,
 };
+use sqlx::{PgPool, Postgres};
 use zayden_core::SlashCommand;
 
 use crate::{Error, Result};
@@ -32,11 +33,12 @@ fn message() -> CreateEmbed {
 pub struct ReactionRoleMessageCommand;
 
 #[async_trait]
-impl SlashCommand<Error> for ReactionRoleMessageCommand {
+impl SlashCommand<Error, Postgres> for ReactionRoleMessageCommand {
     async fn run(
         ctx: &Context,
         interaction: &CommandInteraction,
         _options: Vec<ResolvedOption<'_>>,
+        _pool: &PgPool,
     ) -> Result<()> {
         let _ = CHANNEL_ID
             .send_message(ctx, CreateMessage::new().embed(message()))

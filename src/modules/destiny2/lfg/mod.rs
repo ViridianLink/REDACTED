@@ -7,7 +7,7 @@ use chrono::NaiveDateTime;
 use chrono_tz::Tz;
 use lfg::timezone_manager::LOCALE_TO_TIMEZONE;
 use lfg::{LfgGuildManager, LfgGuildRow, LfgPostManager, LfgPostRow, TimezoneManager};
-use serenity::all::{Context, CreateCommand, GuildId, MessageId, Ready, UserId};
+use serenity::all::{ChannelId, Context, CreateCommand, GuildId, MessageId, Ready, RoleId, UserId};
 use sqlx::any::AnyQueryResult;
 use sqlx::{PgPool, Pool, Postgres};
 use zayden_core::SlashCommand;
@@ -45,18 +45,22 @@ impl LfgGuildManager<Postgres> for LfgGuildTable {
 
     async fn save(
         pool: &PgPool,
-        id: impl Into<i64> + Send,
-        channel: impl Into<i64> + Send,
-        role: Option<impl Into<i64> + Send>,
+        id: impl Into<GuildId> + Send,
+        channel: impl Into<ChannelId> + Send,
+        role: Option<impl Into<RoleId> + Send>,
     ) -> sqlx::Result<AnyQueryResult> {
+        let id = id.into().get() as i64;
+        let channel = channel.into().get() as i64;
+        let role = role.map(|r| r.into().get() as i64);
+
         let result = sqlx::query!(
             "INSERT INTO lfg_guilds (id, channel_id, role_id)
             VALUES ($1, $2, $3)
             ON CONFLICT (id)
             DO UPDATE SET channel_id = EXCLUDED.channel_id, role_id = EXCLUDED.role_id;",
-            id.into(),
-            channel.into(),
-            role.map(|r| r.into())
+            id,
+            channel,
+            role
         )
         .execute(pool)
         .await?;

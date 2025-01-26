@@ -22,16 +22,16 @@ struct VoiceChannelTable;
 
 #[async_trait]
 impl VoiceChannelManager<Postgres> for VoiceChannelTable {
-    async fn get(pool: &PgPool, id: ChannelId) -> sqlx::Result<VoiceChannelData> {
+    async fn get(pool: &PgPool, id: ChannelId) -> sqlx::Result<Option<VoiceChannelData>> {
         let row = sqlx::query_as!(
             VoiceChannelRow,
             r#"SELECT * FROM voice_channels WHERE id = $1"#,
             id.get() as i64
         )
-        .fetch_one(pool)
+        .fetch_optional(pool)
         .await?;
 
-        Ok(row.into())
+        Ok(row.map(|row| row.into()))
     }
 
     async fn save(

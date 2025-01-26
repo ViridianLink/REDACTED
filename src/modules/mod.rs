@@ -1,5 +1,4 @@
 pub mod destiny2;
-pub mod family;
 pub mod gold_star;
 pub mod nsfw;
 pub mod reaction_roles;
@@ -12,7 +11,6 @@ use crate::Result;
 pub fn global_register(ctx: &Context, ready: &Ready) -> Result<Vec<CreateCommand>> {
     let commands = [
         destiny2::register(ctx, ready)?,
-        family::register(ctx, ready)?,
         gold_star::register(ctx, ready)?,
         reaction_roles::register(ctx, ready)?,
         temp_voice::register(ctx, ready)?,

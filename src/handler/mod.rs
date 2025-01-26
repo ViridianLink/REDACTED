@@ -1,10 +1,7 @@
 // mod interaction_create;
 // mod message;
 // mod reaction;
-mod interaction_autocomplete;
-mod interaction_command;
-mod interaction_component;
-mod interaction_modal;
+mod interaction;
 mod reaction_add;
 mod reaction_remove;
 mod ready;
@@ -15,31 +12,12 @@ use serenity::async_trait;
 use serenity::model::prelude::Interaction;
 use serenity::prelude::Context;
 
-use crate::{Result, OSCAR_SIX_ID};
-use interaction_autocomplete::interaction_autocomplete;
-use interaction_command::interaction_command;
-use interaction_component::interaction_component;
-use interaction_modal::interaction_modal;
+use crate::sqlx_lib::PostgresPool;
+use crate::OSCAR_SIX_ID;
 
 // pub use ready::OnReady;
 
 pub struct Handler;
-
-impl Handler {
-    async fn interaction_create(ctx: &Context, interaction: Interaction) -> Result<()> {
-        match &interaction {
-            Interaction::Command(command) => interaction_command(ctx, command).await?,
-            Interaction::Autocomplete(autocomplete) => {
-                interaction_autocomplete(ctx, autocomplete).await?
-            }
-            Interaction::Component(component) => interaction_component(ctx, component).await?,
-            Interaction::Modal(modal) => interaction_modal(ctx, modal).await?,
-            _ => unimplemented!("Interaction not implemented: {:?}", interaction.kind()),
-        };
-
-        Ok(())
-    }
-}
 
 #[async_trait]
 impl RawEventHandler for Handler {
@@ -54,9 +32,11 @@ impl RawEventHandler for Handler {
         };
         let ev_debug = format!("{:?}", ev);
 
+        let pool = PostgresPool::get(&ctx).await;
+
         let result = match ev {
             Event::InteractionCreate(interaction) => {
-                Self::interaction_create(&ctx, interaction.interaction).await
+                Self::interaction_create(&ctx, interaction.interaction, &pool).await
             }
             Event::ReactionAdd(reaction) => Self::reaction_add(&ctx, reaction.reaction).await,
             Event::ReactionRemove(reaction) => Self::reaction_remove(&ctx, reaction.reaction).await,

@@ -1,9 +1,9 @@
 use async_trait::async_trait;
 use serenity::all::{CommandInteraction, Context, CreateCommand, Ready, ResolvedOption};
-use sqlx::Postgres;
+use sqlx::{PgPool, Postgres};
 use zayden_core::SlashCommand;
 
-use crate::sqlx_lib::{GuildTable, PostgresPool};
+use crate::sqlx_lib::GuildTable;
 use crate::{Error, Result};
 
 use super::VoiceChannelTable;
@@ -11,18 +11,17 @@ use super::VoiceChannelTable;
 pub struct VoiceCommand;
 
 #[async_trait]
-impl SlashCommand<Error> for VoiceCommand {
+impl SlashCommand<Error, Postgres> for VoiceCommand {
     async fn run(
         ctx: &Context,
         interaction: &CommandInteraction,
         _options: Vec<ResolvedOption<'_>>,
+        pool: &PgPool,
     ) -> Result<()> {
-        let pool = PostgresPool::get(ctx).await;
-
         temp_voice::VoiceCommand::run::<Postgres, GuildTable, VoiceChannelTable>(
             ctx,
             interaction,
-            &pool,
+            pool,
         )
         .await?;
 

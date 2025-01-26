@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 zayden-core = { git = "https://github.com/zayden-bot/slash-command-core.git", branch = "master" }
-family = { git = "https://github.com/zayden-bot/family.git", branch = "master" }
 gold-star = { git = "https://github.com/zayden-bot/gold-star.git", branch = "main" }
 lfg = { git = "https://github.com/zayden-bot/lfg.git", branch = "main" }
 reaction-roles = { git = "https://github.com/zayden-bot/reaction-roles.git", branch = "main" }
@@ -27,7 +26,6 @@ tokio = { version = "*", default-features = false, features = [
     "rt-multi-thread",
 ] }
 futures = { version = "*", default-features = false }
-charming = { version = "*", default-features = false, features = ["ssr"] }
 chrono = { version = "*", default-features = false }
 chrono-tz = { version = "*", default-features = false }
 serde = { version = "*", default-features = false, features = ["derive"] }

@@ -2,10 +2,11 @@ use std::fs;
 
 use async_trait::async_trait;
 use serenity::all::{
-    AutocompleteChoice, CommandInteraction, CommandOptionType, Context, CreateAutocompleteResponse,
-    CreateCommand, CreateCommandOption, CreateInteractionResponse, EditInteractionResponse, Ready,
-    ResolvedOption, ResolvedValue,
+    AutocompleteChoice, AutocompleteOption, CommandInteraction, CommandOptionType, Context,
+    CreateAutocompleteResponse, CreateCommand, CreateCommandOption, CreateInteractionResponse,
+    EditInteractionResponse, Ready, ResolvedOption, ResolvedValue,
 };
+use sqlx::{PgPool, Postgres};
 use weapon::Weapon;
 use wishlist::Wishlist;
 use zayden_core::{parse_options, Autocomplete, SlashCommand};
@@ -28,17 +29,16 @@ pub fn register(ctx: &Context, ready: &Ready) -> Result<Vec<CreateCommand>> {
 pub struct DimWishlist;
 
 #[async_trait]
-impl SlashCommand<Error> for DimWishlist {
+impl SlashCommand<Error, Postgres> for DimWishlist {
     async fn run(
         ctx: &Context,
         interaction: &CommandInteraction,
-        _options: Vec<ResolvedOption<'_>>,
+        mut options: Vec<ResolvedOption<'_>>,
+        _pool: &PgPool,
     ) -> Result<()> {
         interaction.defer_ephemeral(ctx).await.unwrap();
 
-        let options = interaction.data.options();
-        let options = parse_options(&options);
-        let strict = match options.get("strict") {
+        let strict = match options.pop().map(|o| o.value) {
             Some(ResolvedValue::String(strict)) => strict,
             _ => "soft",
         };
@@ -67,16 +67,17 @@ impl SlashCommand<Error> for DimWishlist {
 pub struct D2Weapon;
 
 #[async_trait]
-impl SlashCommand<Error> for D2Weapon {
+impl SlashCommand<Error, Postgres> for D2Weapon {
     async fn run(
         ctx: &Context,
         interaction: &CommandInteraction,
         _options: Vec<ResolvedOption<'_>>,
+        _pool: &PgPool,
     ) -> Result<()> {
         interaction.defer(ctx).await.unwrap();
 
         let options = interaction.data.options();
-        let options = parse_options(&options);
+        let options = parse_options(options);
 
         let name = match options.get("name") {
             Some(ResolvedValue::String(name)) => name,
@@ -123,9 +124,11 @@ impl SlashCommand<Error> for D2Weapon {
 
 #[async_trait]
 impl Autocomplete<Error> for D2Weapon {
-    async fn autocomplete(ctx: &Context, interaction: &CommandInteraction) -> Result<()> {
-        let option = interaction.data.autocomplete().unwrap();
-
+    async fn autocomplete(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        option: AutocompleteOption<'_>,
+    ) -> Result<()> {
         let weapons = match std::fs::read_to_string("weapons.json") {
             Ok(weapons) => weapons,
             Err(_) => {

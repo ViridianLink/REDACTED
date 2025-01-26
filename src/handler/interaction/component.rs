@@ -1,12 +1,9 @@
-use serenity::all::{
-    ComponentInteraction, CreateInteractionResponse, CreateInteractionResponseMessage,
-};
-use serenity::all::{Context, Mentionable};
+use serenity::all::Context;
+use serenity::all::{ComponentInteraction, EditInteractionResponse};
 use zayden_core::ErrorResponse;
 
 use crate::modules::destiny2::lfg::LfgComponents;
-use crate::modules::family::components::{AdoptComponent, MarryComponent};
-use crate::{Result, OSCAR_SIX_ID};
+use crate::Result;
 
 pub async fn interaction_component(
     ctx: &Context,
@@ -18,14 +15,6 @@ pub async fn interaction_component(
     );
 
     let result = match interaction.data.custom_id.as_str() {
-        //region Family
-        "adopt_accept" => AdoptComponent::accept(ctx, interaction).await,
-        "adopt_decline" => AdoptComponent::decline(ctx, interaction).await,
-
-        "marry_accept" => MarryComponent::accept(ctx, interaction).await,
-        "marry_decline" => MarryComponent::decline(ctx, interaction).await,
-        //endregion
-
         // region LFG
         "lfg_join" => LfgComponents::join(ctx, interaction).await,
         "lfg_leave" => LfgComponents::leave(ctx, interaction).await,
@@ -46,31 +35,14 @@ pub async fn interaction_component(
 
     if let Err(e) = result {
         let msg = e.to_response();
-        let is_error = msg.is_empty();
 
-        let content = match is_error {
-            true => format!(
-                "An error occurred. Please contact {} if this issue persists.",
-                OSCAR_SIX_ID.mention()
-            ),
-            false => msg,
-        };
+        let _ = interaction.defer_ephemeral(ctx).await;
 
         interaction
-            .create_response(
-                ctx,
-                CreateInteractionResponse::Message(
-                    CreateInteractionResponseMessage::new()
-                        .content(content)
-                        .ephemeral(true),
-                ),
-            )
+            .edit_response(ctx, EditInteractionResponse::new().content(msg))
             .await
             .unwrap();
-
-        if is_error {
-            return Err(e);
-        }
     }
+
     Ok(())
 }
