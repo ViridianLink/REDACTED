@@ -1,6 +1,7 @@
 use std::ops::Deref;
 
 use futures::{stream, StreamExt};
+use google_sheets_api::types::sheet::RowData;
 use serde::{Deserialize, Serialize};
 use serenity::all::{AutocompleteChoice, CreateEmbed};
 use sqlx::{FromRow, PgPool};
@@ -82,6 +83,30 @@ impl Weapon {
             origin_trait: origin_trait.into(),
             tier: tier.into(),
         }
+    }
+
+    pub fn from_row_data(mut value: RowData, name_i: usize, perk_i: usize) -> Self {
+        let tier = value.values.pop().unwrap().formatted_value.unwrap();
+        let perks_1 = value
+            .values
+            .remove(perk_i)
+            .formatted_value
+            .unwrap()
+            .split('\n')
+            .map(String::from)
+            .collect::<Vec<_>>();
+        let perks_2 = value
+            .values
+            .remove(perk_i)
+            .formatted_value
+            .unwrap()
+            .split('\n')
+            .map(String::from)
+            .collect::<Vec<_>>();
+        let origin_trait = value.values.remove(perk_i).formatted_value.unwrap();
+        let name = value.values.remove(name_i).formatted_value.unwrap();
+
+        Weapon::new(name, vec![perks_1, perks_2], origin_trait, tier)
     }
 
     pub async fn as_api(&self, pool: &PgPool) -> Result<Vec<ApiWeapon>> {
