@@ -15,7 +15,7 @@ use super::weapon::Weapon;
 const ENDGAME_ANALYSIS_ID: &str = "1JM-0SlxVDAi-C6rGVlLxa-J1WGewEeL8Qvq4htWZHhY";
 
 fn primary_colour(color: &Color) -> bool {
-    color.red == 1.0 && color.green == 1.0 && color.blue == 1.0
+    color.red == 0.9529412 && color.green == 0.9529412 && color.blue == 0.9529412
 }
 
 fn special_colour(color: &Color) -> bool {
@@ -67,7 +67,8 @@ impl Wishlist {
             },
         );
 
-        iter.map(|row| Weapon::from_row_data(row, name_index.unwrap(), perk_index.unwrap()))
+        iter.filter(|row| row.values[1].formatted_value.is_some())
+            .map(|row| Weapon::from_row_data(row, name_index.unwrap(), perk_index.unwrap()))
             .collect::<Vec<_>>()
     }
 
