@@ -6,8 +6,6 @@ use serde::{Deserialize, Serialize};
 use serenity::all::{AutocompleteChoice, CreateEmbed};
 use sqlx::{FromRow, PgPool};
 
-use crate::Result;
-
 // const IDEAL_SHOTGUN_COLUMN: IdealWeaponColumns = IdealWeaponColumns {
 //     column_1: Column1::BarrelShroud,
 //     column_2: Column2::TacticalMag,
@@ -86,30 +84,34 @@ impl Weapon {
     }
 
     pub fn from_row_data(mut value: RowData, name_i: usize, perk_i: usize) -> Self {
-        let tier = value.values.pop().unwrap().formatted_value.unwrap();
-        let perks_1 = value
+        let tier = value
+            .values
+            .pop()
+            .unwrap()
+            .formatted_value
+            .unwrap_or_default();
+
+        let perks_1 = match value.values.remove(perk_i).formatted_value {
+            Some(perks) => perks.split('\n').map(String::from).collect::<Vec<_>>(),
+            None => Vec::new(),
+        };
+
+        let perks_2 = match value.values.remove(perk_i).formatted_value {
+            Some(perks) => perks.split('\n').map(String::from).collect::<Vec<_>>(),
+            None => Vec::new(),
+        };
+
+        let origin_trait = value
             .values
             .remove(perk_i)
             .formatted_value
-            .unwrap()
-            .split('\n')
-            .map(String::from)
-            .collect::<Vec<_>>();
-        let perks_2 = value
-            .values
-            .remove(perk_i)
-            .formatted_value
-            .unwrap()
-            .split('\n')
-            .map(String::from)
-            .collect::<Vec<_>>();
-        let origin_trait = value.values.remove(perk_i).formatted_value.unwrap();
+            .unwrap_or_default();
         let name = value.values.remove(name_i).formatted_value.unwrap();
 
         Weapon::new(name, vec![perks_1, perks_2], origin_trait, tier)
     }
 
-    pub async fn as_api(&self, pool: &PgPool) -> Result<Vec<ApiWeapon>> {
+    pub async fn as_api(&self, pool: &PgPool) -> Vec<ApiWeapon> {
         let name = match self.name.as_str() {
             "Song of Ir Yut" => "Song of Ir Yût",
             "Just In Case" => "Just in Case",
@@ -127,24 +129,24 @@ impl Weapon {
         .unwrap();
 
         if weapons.is_empty() {
+            // HACK: This is a temporary fix for the missing weapons
+            return Vec::new();
             panic!("No weapon found for {}", name);
         }
 
         let api_perks = self.perks.as_api(pool).await;
 
-        let api_weapons = weapons
+        weapons
             .into_iter()
             .map(|w| ApiWeapon {
                 hash: w.id as u32,
                 perks: api_perks.clone(),
             })
-            .collect();
-
-        Ok(api_weapons)
+            .collect()
     }
 
     pub async fn as_wishlist(&self, pool: &PgPool) -> String {
-        let weapons = self.as_api(pool).await.unwrap();
+        let weapons = self.as_api(pool).await;
 
         let mut s = format!("// {}\n//notes: tags:pve", self.name);
 
