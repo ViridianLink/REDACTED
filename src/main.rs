@@ -5,6 +5,7 @@ mod handler;
 pub mod modules;
 mod sqlx_lib;
 
+use modules::destiny2::dimwishlist::bungie_api::BungieApi;
 use serenity::all::{GatewayIntents, UserId};
 use serenity::prelude::TypeMap;
 use serenity::Client;
@@ -22,6 +23,8 @@ async fn main() -> Result<()> {
     dotenvy::dotenv().unwrap();
 
     let pool = PostgresPool::init().await?;
+
+    BungieApi::update_dbs(&pool).await.unwrap();
 
     let mut type_map = TypeMap::new();
     type_map.insert::<PostgresPool>(pool);
