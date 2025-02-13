@@ -9,7 +9,7 @@ use crate::Result;
 use super::VoiceChannelTable;
 
 pub async fn run(ctx: &Context, pool: &PgPool, new: &VoiceState) -> Result<()> {
-    let old = VoiceStateCache::update(ctx, new.clone()).await?;
+    let old = VoiceStateCache::update(ctx, new).await?;
 
     tokio::try_join!(
         channel_creator::<Postgres, GuildTable, VoiceChannelTable>(ctx, pool, new),
