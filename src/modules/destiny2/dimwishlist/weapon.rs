@@ -129,8 +129,6 @@ impl Weapon {
         .unwrap();
 
         if weapons.is_empty() {
-            // HACK: This is a temporary fix for the missing weapons
-            return Vec::new();
             panic!("No weapon found for {}", name);
         }
 
