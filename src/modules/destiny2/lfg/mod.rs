@@ -7,22 +7,13 @@ use chrono::NaiveDateTime;
 use chrono_tz::Tz;
 use lfg::timezone_manager::LOCALE_TO_TIMEZONE;
 use lfg::{LfgGuildManager, LfgGuildRow, LfgPostManager, LfgPostRow, TimezoneManager};
-use serenity::all::{ChannelId, Context, CreateCommand, GuildId, MessageId, Ready, RoleId, UserId};
+use serenity::all::{ChannelId, GuildId, MessageId, RoleId, UserId};
 use sqlx::any::AnyQueryResult;
 use sqlx::{PgPool, Pool, Postgres};
-use zayden_core::SlashCommand;
 
 pub use components::LfgComponents;
 pub use modal::{LfgCreateModal, LfgEditModal};
 pub use slash_command::LfgCommand;
-
-use crate::Result;
-
-pub fn register(ctx: &Context, ready: &Ready) -> Result<Vec<CreateCommand>> {
-    let commands = vec![LfgCommand::register(ctx, ready)?];
-
-    Ok(commands)
-}
 
 struct LfgGuildTable;
 

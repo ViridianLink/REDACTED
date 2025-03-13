@@ -1,10 +1,10 @@
 // #![allow(dead_code)]
 use std::env;
 
+use bungie_api::types::TierType;
 use bungie_api::types::common::DestinyDisplayPropertiesDefinition;
 use bungie_api::types::definitions::DestinyItemInventoryBlockDefinition;
 use bungie_api::types::destiny::{DamageType, DestinyItemSubType, DestinyItemType};
-use bungie_api::types::TierType;
 use bungie_api::{
     BungieClientBuilder, DestinyInventoryItemDefinition, DestinyInventoryItemManifest,
     DestinyPlugSetManifest, DestinySocketCategoryManifest, DestinySocketTypeManifest,
@@ -101,6 +101,7 @@ impl BungieApi {
         for weapon in valid_weapons {
             let hash = weapon.hash as i64;
             let name = &weapon.display_properties.name;
+            let icon = weapon.display_properties.icon;
 
             let mut perks = weapon
                 .sockets
@@ -115,7 +116,7 @@ impl BungieApi {
                             socket_category_manifest
                                 .get(&socket_type.socket_category_hash.to_string())
                         })
-                        .map_or(false, |socket_category| {
+                        .is_some_and(|socket_category| {
                             socket_category.display_properties.name == "WEAPON PERKS"
                         })
                 })
@@ -161,11 +162,12 @@ impl BungieApi {
 
             sqlx::query!(
                 r#"
-            INSERT INTO destiny_weapons (id, name, column_1, column_2, perk_1, perk_2)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO destiny_weapons (id, name, icon, column_1, column_2, perk_1, perk_2)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             "#,
                 hash,
                 name,
+                icon,
                 &column_1
                     .into_iter()
                     .map(|p| p.hash as i64)

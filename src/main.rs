@@ -6,9 +6,10 @@ pub mod modules;
 mod sqlx_lib;
 
 use modules::destiny2::dimwishlist::bungie_api::BungieApi;
+use modules::destiny2::endgame_analysis::EndgameAnalysisSheet;
+use serenity::Client;
 use serenity::all::{GatewayIntents, UserId};
 use serenity::prelude::TypeMap;
-use serenity::Client;
 use sqlx_lib::PostgresPool;
 use std::collections::HashMap;
 use std::env;
@@ -25,6 +26,7 @@ async fn main() -> Result<()> {
     let pool = PostgresPool::init().await?;
 
     BungieApi::update_dbs(&pool).await.unwrap();
+    EndgameAnalysisSheet::update(&pool).await.unwrap();
 
     let mut type_map = TypeMap::new();
     type_map.insert::<PostgresPool>(pool);

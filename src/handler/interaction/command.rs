@@ -1,9 +1,12 @@
 use serenity::all::{CommandInteraction, Context, EditInteractionResponse};
 use sqlx::PgPool;
-use zayden_core::{get_option_str, ErrorResponse, SlashCommand};
+use zayden_core::{ErrorResponse, SlashCommand, get_option_str};
 
-use crate::modules::destiny2::dimwishlist::{D2Weapon, DimWishlist};
+use crate::Result;
+use crate::modules::destiny2::dimwishlist::DimWishlist;
 use crate::modules::destiny2::lfg::LfgCommand;
+use crate::modules::destiny2::tierlist::TierList;
+use crate::modules::destiny2::weapon::WeaponCommand;
 use crate::modules::gold_star::slash_commands::{GiveStarCommand, StarsCommand};
 use crate::modules::temp_voice::slash_command::Voice;
 
@@ -22,9 +25,10 @@ pub async fn interaction_command(
 
     let result = match interaction.data.name.as_str() {
         // region Destiny 2
-        "d2weapon" => D2Weapon::run(ctx, interaction, options, pool).await,
+        "weapon" => WeaponCommand::run(ctx, interaction, options, pool).await,
         "dimwishlist" => DimWishlist::run(ctx, interaction, options, pool).await,
         "lfg" => LfgCommand::run(ctx, interaction, options, pool).await,
+        "tierlist" => TierList::run(ctx, interaction, options, pool).await,
         // endregion
 
         // region Gold Stars
@@ -33,7 +37,7 @@ pub async fn interaction_command(
         // endregion
 
         // region Temp Voice
-        "voice" => VoiceCommand::run(ctx, interaction, options, pool).await,
+        "voice" => Voice::run(ctx, interaction, options, pool).await,
         // endregion
         _ => {
             println!("Unknown command: {}", interaction.data.name);

@@ -35,11 +35,12 @@ impl SlashCommand<Error, Postgres> for LfgCommand {
 }
 
 #[async_trait]
-impl Autocomplete<Error> for LfgCommand {
+impl Autocomplete<Error, Postgres> for LfgCommand {
     async fn autocomplete(
         ctx: &Context,
         interaction: &CommandInteraction,
         option: AutocompleteOption<'_>,
+        _pool: &PgPool,
     ) -> Result<()> {
         lfg::LfgCommand::autocomplete(ctx, interaction, option).await?;
 

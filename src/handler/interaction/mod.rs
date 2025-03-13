@@ -24,7 +24,7 @@ impl Handler {
         match &interaction {
             Interaction::Command(command) => interaction_command(ctx, command, pool).await?,
             Interaction::Autocomplete(autocomplete) => {
-                interaction_autocomplete(ctx, autocomplete).await?
+                interaction_autocomplete(ctx, autocomplete, pool).await?
             }
             Interaction::Component(component) => interaction_component(ctx, component).await?,
             Interaction::Modal(modal) => interaction_modal(ctx, modal).await?,

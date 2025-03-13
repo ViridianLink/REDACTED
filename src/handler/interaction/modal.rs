@@ -1,8 +1,8 @@
-use serenity::all::{Context, CreateInteractionResponseFollowup, Mentionable, ModalInteraction};
+use serenity::all::{Context, EditInteractionResponse, ModalInteraction};
 use zayden_core::ErrorResponse;
 
 use crate::modules::destiny2::lfg;
-use crate::{Result, OSCAR_SIX_ID};
+use crate::Result;
 
 pub async fn interaction_modal(ctx: &Context, interaction: &ModalInteraction) -> Result<()> {
     println!(
@@ -23,26 +23,11 @@ pub async fn interaction_modal(ctx: &Context, interaction: &ModalInteraction) ->
 
     if let Err(e) = result {
         let msg = e.to_response();
-        if msg.is_empty() {
-            interaction
-                .create_followup(
-                    ctx,
-                    CreateInteractionResponseFollowup::new().content(format!(
-                        "An error occurred. Please contact {} if this issue persists.",
-                        OSCAR_SIX_ID.mention()
-                    )),
-                )
-                .await
-                .unwrap();
-            return Err(e);
-        }
+
+        let _ = interaction.defer_ephemeral(ctx).await;
+
         interaction
-            .create_followup(
-                ctx,
-                CreateInteractionResponseFollowup::new()
-                    .content(msg)
-                    .ephemeral(true),
-            )
+            .edit_response(ctx, EditInteractionResponse::new().content(msg))
             .await
             .unwrap();
     }

@@ -8,10 +8,10 @@ use crate::{Error, Result};
 
 use super::VoiceChannelTable;
 
-pub struct VoiceCommand;
+pub struct Voice;
 
 #[async_trait]
-impl SlashCommand<Error, Postgres> for VoiceCommand {
+impl SlashCommand<Error, Postgres> for Voice {
     async fn run(
         ctx: &Context,
         interaction: &CommandInteraction,

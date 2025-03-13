@@ -1,78 +1,22 @@
-use std::env;
-
 use futures::future;
-use futures::{stream, StreamExt};
-use google_sheets_api::types::common::Color;
-use google_sheets_api::types::sheet::GridData;
-use google_sheets_api::SheetsClientBuilder;
+use futures::{StreamExt, stream};
 use serenity::all::{CommandInteraction, Context, CreateAttachment, EditInteractionResponse};
+use sqlx::PgPool;
 
-use crate::sqlx_lib::PostgresPool;
 use crate::Result;
-
-use super::weapon::Weapon;
-
-const ENDGAME_ANALYSIS_ID: &str = "1JM-0SlxVDAi-C6rGVlLxa-J1WGewEeL8Qvq4htWZHhY";
-
-fn primary_colour(color: &Color) -> bool {
-    color.red == 0.9529412 && color.green == 0.9529412 && color.blue == 0.9529412
-}
-
-fn special_colour(color: &Color) -> bool {
-    color.red == 0.0 && color.green == 1.0 && color.blue == 0.0
-}
-
-fn heavy_colour(color: &Color) -> bool {
-    color.red == 0.6 && color.green == 0.0 && color.blue == 1.0
-}
+use crate::modules::destiny2::endgame_analysis::EndgameAnalysisSheet;
+use crate::modules::destiny2::endgame_analysis::weapon::Weapon;
+use crate::sqlx_lib::PostgresPool;
 
 pub struct Wishlist;
 
 impl Wishlist {
-    pub async fn update() -> Result<()> {
-        let api_key = env::var("GOOGLE_API_KEY").unwrap();
-
-        let client = SheetsClientBuilder::new(api_key).build().unwrap();
-
-        let spreadsheet = client.spreadsheet(ENDGAME_ANALYSIS_ID, true).await.unwrap();
-
-        let weapons = spreadsheet
-            .sheets
-            .into_iter()
-            .filter(|s| !s.properties.hidden)
-            .filter(|s| {
-                primary_colour(&s.properties.tab_color)
-                    || special_colour(&s.properties.tab_color)
-                    || heavy_colour(&s.properties.tab_color)
-            })
-            .map(|mut sheet| sheet.data.pop().unwrap())
-            .flat_map(Self::parse_weapon_data)
-            .collect::<Vec<_>>();
-
-        let json = serde_json::to_string(&weapons).unwrap();
-        std::fs::write("weapons.json", json).unwrap();
-
-        Ok(())
-    }
-
-    pub fn parse_weapon_data(data: GridData) -> Vec<Weapon> {
-        let mut iter = data.row_data.into_iter().skip(1);
-
-        let (name_index, perk_index) = iter.next().unwrap().values.into_iter().enumerate().fold(
-            (None, None),
-            |(name_i, perk_i), (i, cell)| match cell.formatted_value.as_deref() {
-                Some("Name") => (Some(i), perk_i.or(Some(i))),
-                Some("Column 1") => (name_i.or(Some(i)), Some(i)),
-                _ => (name_i, perk_i),
-            },
-        );
-
-        iter.filter(|row| row.values[1].formatted_value.is_some())
-            .map(|row| Weapon::from_row_data(row, name_index.unwrap(), perk_index.unwrap()))
-            .collect::<Vec<_>>()
-    }
-
-    pub async fn run(ctx: &Context, interaction: &CommandInteraction, strict: &str) -> Result<()> {
+    pub async fn run(
+        ctx: &Context,
+        interaction: &CommandInteraction,
+        pool: &PgPool,
+        strict: &str,
+    ) -> Result<()> {
         let tier = match strict {
             "soft" => vec!["S", "A", "B", "C", "D", "E", "F", "G"],
             "regular" => vec!["S", "A", "B", "C", "D"],
@@ -86,7 +30,7 @@ impl Wishlist {
         let weapons = match std::fs::read_to_string("weapons.json") {
             Ok(weapons) => weapons,
             Err(_) => {
-                Self::update().await?;
+                EndgameAnalysisSheet::update(pool).await?;
                 std::fs::read_to_string("weapons.json").unwrap()
             }
         };
@@ -95,7 +39,7 @@ impl Wishlist {
         let pool = PostgresPool::get(ctx).await;
 
         let wishlist = stream::iter(weapons)
-            .filter(|weapon| future::ready(tier.contains(&weapon.tier.as_str())))
+            .filter(|weapon| future::ready(tier.contains(&weapon.tier().as_str())))
             .then(|weapon| {
                 let pool = pool.clone();
                 async move { weapon.as_wishlist(&pool).await }
