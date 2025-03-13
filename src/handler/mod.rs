@@ -2,8 +2,6 @@
 // mod message;
 // mod reaction;
 mod interaction;
-mod reaction_add;
-mod reaction_remove;
 mod ready;
 mod voice_state_update;
 
@@ -38,8 +36,6 @@ impl RawEventHandler for Handler {
             Event::InteractionCreate(interaction) => {
                 Self::interaction_create(&ctx, interaction.interaction, &pool).await
             }
-            Event::ReactionAdd(reaction) => Self::reaction_add(&ctx, reaction.reaction).await,
-            Event::ReactionRemove(reaction) => Self::reaction_remove(&ctx, reaction.reaction).await,
             Event::Ready(ready) => Self::ready(&ctx, ready.ready).await,
             Event::VoiceStateUpdate(voice_state) => {
                 Self::voice_state_update(&ctx, voice_state.voice_state).await

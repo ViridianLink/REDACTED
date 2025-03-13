@@ -6,7 +6,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     GoldStar(gold_star::Error),
     Lfg(lfg::Error),
-    ReactionRole(reaction_roles::Error),
     TempVoice(temp_voice::Error),
 }
 
@@ -15,7 +14,6 @@ impl ErrorResponse for Error {
         match self {
             Error::GoldStar(e) => e.to_response(),
             Error::Lfg(e) => e.to_response(),
-            Error::ReactionRole(e) => e.to_response(),
             Error::TempVoice(e) => e.to_response(),
         }
     }
@@ -38,12 +36,6 @@ impl From<gold_star::Error> for Error {
 impl From<lfg::Error> for Error {
     fn from(e: lfg::Error) -> Self {
         Error::Lfg(e)
-    }
-}
-
-impl From<reaction_roles::Error> for Error {
-    fn from(e: reaction_roles::Error) -> Self {
-        Error::ReactionRole(e)
     }
 }
 

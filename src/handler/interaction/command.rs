@@ -5,9 +5,7 @@ use zayden_core::{get_option_str, ErrorResponse, SlashCommand};
 use crate::modules::destiny2::dimwishlist::{D2Weapon, DimWishlist};
 use crate::modules::destiny2::lfg::LfgCommand;
 use crate::modules::gold_star::slash_commands::{GiveStarCommand, StarsCommand};
-use crate::modules::reaction_roles::{ReactionRoleCommand, ReactionRoleMessageCommand};
-use crate::modules::temp_voice::slash_command::VoiceCommand;
-use crate::Result;
+use crate::modules::temp_voice::slash_command::Voice;
 
 pub async fn interaction_command(
     ctx: &Context,
@@ -34,12 +32,6 @@ pub async fn interaction_command(
         "stars" => StarsCommand::run(ctx, interaction, options, pool).await,
         // endregion
 
-        //region Reaction Roles
-        "reaction_role" => ReactionRoleCommand::run(ctx, interaction, options, pool).await,
-        "reaction_role_message" => {
-            ReactionRoleMessageCommand::run(ctx, interaction, options, pool).await
-        }
-        //endregion
         // region Temp Voice
         "voice" => VoiceCommand::run(ctx, interaction, options, pool).await,
         // endregion
